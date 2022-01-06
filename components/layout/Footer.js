@@ -3,8 +3,7 @@ import Link from 'next/link'
 const Footer = () => {
     return (
         <footer className='w-full max-w-2xl px-4 mx-auto mb-8'>
-            <hr className='mb-8' />
-            <ul className='flex justify-center gap-10 w-full'>
+            <ul className='flex justify-center gap-10 w-full pt-10 border-t border-react-link border-opacity-50'>
                 <li>
                     <Link href='https://twitter.com/haamedbahram'>
                         <a

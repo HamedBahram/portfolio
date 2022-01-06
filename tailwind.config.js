@@ -9,6 +9,9 @@ module.exports = {
                     DEFAULT: '#20232a',
                 },
             },
+            boxShadow: {
+                custom: '3px 3px 12px rgba(200, 200, 200, 0.3)',
+            },
         },
     },
     variants: {

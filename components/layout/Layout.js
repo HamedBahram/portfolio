@@ -6,14 +6,14 @@ const Layout = ({ children }) => {
     return (
         <>
             <Head>
-                <title>Hamed Bahram - Web developer</title>
+                <title>Hamed Bahram</title>
                 <meta
                     name='description'
                     content='Full-stack developer, AI enthusiast, real estate lover'
                 />
             </Head>
             <Header />
-            <main className='max-w-2xl px-4 mx-auto mb-16'>{children}</main>
+            <main className='max-w-2xl px-8 mx-auto mb-16'>{children}</main>
             <Footer />
         </>
     )

@@ -10,7 +10,7 @@ const Header = () => {
 
     return (
         <header className='sticky top-0 z-10 py-7 px-4 mb-12 bg-white bg-opacity-95 dark:bg-react dark:bg-opacity-95'>
-            <nav className='flex justify-between items-center w-full max-w-4xl mx-auto'>
+            <nav className='flex flex-row-reverse justify-between items-center w-full max-w-2xl mx-auto px-8'>
                 <button
                     aria-label='Toggle Dark Mode'
                     type='button'
@@ -42,18 +42,24 @@ const Header = () => {
                 </button>
                 <ul className='flex justify-evenly items-center gap-4'>
                     <li>
-                        <Link href='/blog'>
-                            <a className='hover:text-react-link transition'>Blog</a>
+                        <Link href='/'>
+                            <a className='hover:text-react-link focus:text-react-link transition'>
+                                Home
+                            </a>
                         </Link>
                     </li>
                     <li>
                         <Link href='/projects'>
-                            <a className='hover:text-react-link transition'>Projects</a>
+                            <a className='hover:text-react-link focus:text-react-link transition'>
+                                Projects
+                            </a>
                         </Link>
                     </li>
                     <li>
-                        <Link href='/'>
-                            <a className='hover:text-react-link transition'>Home</a>
+                        <Link href='/blog'>
+                            <a className='hover:text-react-link focus:text-react-link transition-colors'>
+                                Blog
+                            </a>
                         </Link>
                     </li>
                 </ul>
