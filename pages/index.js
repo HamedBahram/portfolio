@@ -16,8 +16,8 @@ const HomePage = () => {
                         </span>
                     </h1>
                     <p>
-                        Welcome to my nook. I document things I&#39;m learning and stuff I kind of
-                        figured out, stuff I&#39;ve been working on and struggles along the way.
+                        Welcome to my nook. I document what I&#39;m learning and stuff I kind of
+                        figured out, stuff I&#39;ve been working on and the struggles along the way.
                     </p>
                 </div>
                 <Image
@@ -30,7 +30,7 @@ const HomePage = () => {
             </section>
 
             <section className='mb-12'>
-                <h2 className='text-2xl font-bold mb-6'>Recent Posts</h2>
+                <h2 className='text-2xl font-bold mb-6'>Recent Notes</h2>
                 <BlogPostSummary
                     title='Everything I know about ExpressJS'
                     summary='From zero to hero in building a server with ExpressJS'
