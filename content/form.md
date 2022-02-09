@@ -1,22 +1,8 @@
-<!-----
-NEW: Check the "Suppress top comment" option to remove this info from the output.
-
-Conversion time: 0.329 seconds.
-
-
-Using this Markdown file:
-
-1. Paste this output into your source file.
-2. See the notes and action items below regarding this conversion run.
-3. Check the rendered output (headings, lists, code blocks, tables) for proper
-   formatting and use a linkchecker before you publish this page.
-
-Conversion notes:
-
-* Docs to Markdown version 1.0β31
-* Thu Jan 06 2022 08:12:16 GMT-0800 (PST)
-* Source doc: blog #3 - forms
------>
+---
+title: 'HTML Forms'
+excerpt: 'How HTML Forms actually work...'
+data: '2022-02-09'
+---
 
 **Html forms **
 
