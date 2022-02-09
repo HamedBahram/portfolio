@@ -1,6 +1,8 @@
 import Link from 'next/link'
 
-const ProjectSummary = ({ title, summary, slug, icon }) => {
+const ProjectSummary = ({ project }) => {
+    const { title, summary, slug, icon } = project
+
     return (
         <Link href={`/projects/${slug}`}>
             <a>

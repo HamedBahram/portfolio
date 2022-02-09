@@ -56,9 +56,9 @@ const Header = () => {
                         </Link>
                     </li>
                     <li>
-                        <Link href='/blog'>
+                        <Link href='/notes'>
                             <a className='hover:text-react-link focus:text-react-link transition-colors'>
-                                Blog
+                                Notes
                             </a>
                         </Link>
                     </li>

@@ -2,7 +2,8 @@ import Link from 'next/link'
 import useSWR from 'swr'
 import fetcher from '@/lib/fetcher'
 
-const BlogPostSummary = ({ title, summary, slug }) => {
+const NoteSummary = ({ note }) => {
+    const { title, summary, slug } = note
     const { data } = useSWR(`/api/views/${slug}`, fetcher)
     const views = Number(data ? data.total : 0)
 
@@ -23,4 +24,4 @@ const BlogPostSummary = ({ title, summary, slug }) => {
     )
 }
 
-export default BlogPostSummary
+export default NoteSummary
