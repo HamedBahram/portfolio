@@ -12,8 +12,9 @@ const Hero = () => {
                     </span>
                 </h1>
                 <p>
-                    Welcome to my nook. I document what I&#39;m learning and stuff I kind of figured
-                    out, stuff I&#39;ve been working on and the struggles along the way.
+                    Welcome to my nook. Here, I try to document what I&#39;m learning and share
+                    stuff I&#39;ve been working on. May it help future me or someone else in their
+                    journey.
                 </p>
             </div>
             <Image

@@ -7,17 +7,17 @@ export const notes = [
     {
         title: 'Everything I know about ExpressJS',
         summary: 'From zero to hero in building a server with ExpressJS',
-        slug: 'everything-expressjs',
+        slug: 'everything-expressjs-v2',
     },
     {
         title: 'Everything I know about ExpressJS',
         summary: 'From zero to hero in building a server with ExpressJS',
-        slug: 'everything-expressjs',
+        slug: 'everything-expressjs-v3',
     },
     {
         title: 'Everything I know about ExpressJS',
         summary: 'From zero to hero in building a server with ExpressJS',
-        slug: 'everything-expressjs',
+        slug: 'everything-expressjs-v4',
     },
 ]
 
