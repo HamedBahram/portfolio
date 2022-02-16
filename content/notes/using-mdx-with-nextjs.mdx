@@ -1,0 +1,65 @@
+---
+title: Using MDX with NextJS
+excerpt: Learn what MDX is and how you can use it with NextJS
+coverImage: /images/notes/using-mdx/cover.png
+ogImage: /images/notes/using-mdx/cover.jpeg
+tags:
+  - MDX
+  - Markdown
+  - NextJS
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-02-16'
+---
+
+## What is MDX?
+
+MDX is a superset of markdown that lets you write JSX directly in your markdown files. It is a powerful way to add dynamic interactivity, and embed components within your content, helping you to bring your pages to life.
+
+## Why use MDX?
+
+<div className='px-8 text-white bg-emerald-400'>This is a Test</div>
+
+Authoring in markdown is an intuitive way to write content, its brief syntax can enable you to write content that is both readable and maintainable. However, markdown is essentially static content, you can't create dynamic content based on user interactivity. Where MDX shines is in its ability to let you use your React components directly in the markup.
+
+## MDX Plugins
+
+Internally MDX uses remark and rehype. **Remark is a markdown processor** powered by plugins. This plugin ecosystem lets you parse code, transform HTML elements, change syntax, extract frontmatter, and more.
+
+**Rehype is an HTML processor**, also powered by plugins. Similar to remark, these plugins let you manipulate, sanitize, compile and configure all types of data, elements and content.
+
+## Using MDX with Next.js
+
+Next.js supports MDX through several different means, we will outline some of the ways you can begin integrating MDX into your Next.js project.
+
+## `@next/mdx`
+
+The `@next/mdx` sources data from local files, allowing you to create pages with a `.mdx` extension, directly in your `/pages` directory.
+
+1. Install the required packages:
+
+```bash
+  npm install @next/mdx @mdx-js/loader
+```
+
+2. Configure NextJS to support top level `.mdx` pages:
+
+```js
+// next.config.js
+
+const withMDX = require('@next/mdx')({
+  extension: /\.mdx?$/,
+  options: {
+    remarkPlugins: [],
+    rehypePlugins: []
+  }
+})
+module.exports = withMDX({
+  pageExtensions: ['js', 'jsx', 'md', 'mdx']
+})
+```
+
+## Conclusion
+
+That's it folks. Go make it happen.

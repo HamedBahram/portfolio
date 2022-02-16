@@ -1,15 +1,15 @@
 import '@/styles/globals.css'
 import { ThemeProvider } from 'next-themes'
-import Layout from '@/components/layout/Layout'
+import SiteLayout from '@/components/layout/site/SiteLayout'
 
 function MyApp({ Component, pageProps }) {
-    return (
-        <ThemeProvider attribute='class'>
-            <Layout>
-                <Component {...pageProps} />
-            </Layout>
-        </ThemeProvider>
-    )
+  return (
+    <ThemeProvider attribute="class">
+      <SiteLayout>
+        <Component {...pageProps} />
+      </SiteLayout>
+    </ThemeProvider>
+  )
 }
 
 export default MyApp

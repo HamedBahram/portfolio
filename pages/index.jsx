@@ -1,17 +1,28 @@
-import Hero from '@/components/home/Hero'
+import Intro from '@/components/home/Intro'
 import RecentNotes from '@/components/notes/RecentNotes'
 import RecentProjects from '@/components/projects/RecentProjects'
+import { getAllNotesMeta } from '@/lib/notes'
 
-import { notes, projects } from 'data/dummy'
+import { projects } from 'data/dummy'
 
-const Home = () => {
-    return (
-        <>
-            <Hero />
-            <RecentNotes notes={notes} />
-            <RecentProjects projects={projects} />
-        </>
-    )
+const Home = ({ notes }) => {
+  return (
+    <>
+      <Intro />
+      <RecentNotes notes={notes} />
+      <RecentProjects projects={projects} />
+    </>
+  )
+}
+
+export async function getStaticProps() {
+  const notes = getAllNotesMeta()
+
+  return {
+    props: {
+      notes
+    }
+  }
 }
 
 export default Home
