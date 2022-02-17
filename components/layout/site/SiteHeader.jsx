@@ -3,12 +3,13 @@ import Link from 'next/link'
 import { useTheme } from 'next-themes'
 
 const SiteHeader = () => {
-  const { theme, systemTheme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
+  useEffect(() => setMounted(true), [])
+
+  const { theme, resolvedTheme, setTheme } = useTheme()
   useEffect(() => {
-    setMounted(true)
-    systemTheme && setTheme(systemTheme)
-  }, [systemTheme, setTheme])
+    resolvedTheme && setTheme(resolvedTheme)
+  }, [resolvedTheme, setTheme])
 
   return (
     <header className="sticky top-0 z-10 mb-12 bg-white bg-opacity-95 py-7 px-4 dark:bg-react dark:bg-opacity-95">

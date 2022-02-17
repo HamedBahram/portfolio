@@ -6,7 +6,7 @@ const NoteHeader = ({ meta }) => {
 
   return (
     <header>
-      <h1 className="mb-4 text-5xl font-bold leading-tight tracking-tighter md:leading-none lg:text-6xl">
+      <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tighter md:leading-none lg:text-5xl">
         {title}
       </h1>
       <div className="mb-6 flex items-center gap-2 text-sm font-light text-zinc-400">
