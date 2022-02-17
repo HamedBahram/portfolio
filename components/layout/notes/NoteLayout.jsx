@@ -4,7 +4,6 @@ import NoteHeader from '@/components/notes/NoteHeader'
 import Head from 'next/head'
 
 const NoteLayout = ({ meta, source }) => {
-
   return (
     <>
       <Head>

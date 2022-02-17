@@ -1,6 +1,6 @@
-import '@/styles/globals.css'
-import { ThemeProvider } from 'next-themes'
 import SiteLayout from '@/components/layout/site/SiteLayout'
+import { ThemeProvider } from 'next-themes'
+import '@/styles/globals.css'
 
 function MyApp({ Component, pageProps }) {
   return (

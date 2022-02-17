@@ -2,17 +2,17 @@ import NoteLayout from '@/components/layout/notes/NoteLayout'
 import { getAllSlugs, getNoteBySlug } from '@/lib/notes'
 
 const Note = ({ meta, source }) => {
-  return <NoteLayout  meta={meta} source={source} />
+  return <NoteLayout meta={meta} source={source} />
 }
 
 export async function getStaticProps({ params }) {
   const { slug } = params
-  const {meta, source} = await getNoteBySlug(slug)
+  const { meta, source } = await getNoteBySlug(slug)
 
   return {
     props: {
-      meta, 
-      source, 
+      meta,
+      source
     }
   }
 }
