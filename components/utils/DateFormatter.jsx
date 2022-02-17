@@ -1,11 +1,9 @@
+import { format, parseISO } from 'date-fns'
+
 const DateFormatter = ({ dateString, className }) => {
   return (
-    <time className={className}>
-      {new Date(dateString).toLocaleDateString('en-Ca', {
-        day: 'numeric',
-        month: 'short',
-        year: 'numeric'
-      })}
+    <time dateTime={dateString} className={className}>
+      {format(parseISO(dateString), 'MMM dd, yyyy')}
     </time>
   )
 }
