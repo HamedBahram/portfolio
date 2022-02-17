@@ -1,8 +1,9 @@
+import ViewCounter from '../ui/ViewCounter'
 import Avatar from '../utils/Avatar'
 import DateFormatter from '../utils/DateFormatter'
 
 const NoteHeader = ({ meta }) => {
-  const { title, author, date, readTime } = meta
+  const { title, slug, author, date, readTime } = meta
 
   return (
     <header>
@@ -30,8 +31,8 @@ const NoteHeader = ({ meta }) => {
               <path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z" />
             </svg>
             <span>{readTime}</span>
-            <span className="font-bold"> . </span>
-            <span>12,000 views</span>
+            <span className="px-1">{` • `}</span>
+            <ViewCounter slug={slug} />
           </div>
         </div>
       </div>

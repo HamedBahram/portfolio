@@ -1,17 +1,41 @@
-import { useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import useSWR from 'swr'
+
 import fetcher from '@/lib/fetcher'
 
-const ViewCounter = ({ slug }) => {
+const ViewCounter = ({ slug, className = '' }) => {
+  const [views, setViews] = useState(0)
   const { data } = useSWR(`/api/views/${slug}`, fetcher)
-  const views = Number(data ? data.total : 0)
 
   useEffect(() => {
-    const registerView = () => fetch(`/api/views/${slug}`, { method: 'POST' })
+    if (!data) return
+    setViews(data.viewCount)
+  }, [data])
+
+  useEffect(() => {
+    if (!slug) return
+
+    const registerView = async () => {
+      const { viewCount } = await fetch(`/api/views/${slug}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }).then(res => res.json())
+
+      if (viewCount) {
+        setViews(viewCount)
+      }
+    }
+
     registerView()
   }, [slug])
 
-  return `${views > 0 ? views.toLocaleString() : '---'} views`
+  return (
+    <span className={className}>
+      {views > 0 ? views.toLocaleString() : '---'} views
+    </span>
+  )
 }
 
 export default ViewCounter

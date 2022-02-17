@@ -11,7 +11,7 @@ const Intro = () => {
             /hə.med/
           </span>
         </h1>
-        <p>
+        <p className="text-gray-500">
           Welcome to my nook. Here, I try to document what I&#39;m learning and
           share stuff I&#39;ve been working on. May it help someone else in
           their journey.

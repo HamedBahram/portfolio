@@ -20,9 +20,9 @@ async function init() {
 export async function getViews(slug) {
   try {
     await init()
-    const views = await db.collection('views')
-    const view = await views.findOne({ slug })
-    return { count: view ? view.count : 0 }
+    const notes = await db.collection('notes')
+    const note = await notes.findOne({ slug })
+    return { viewCount: note && note.viewCount ? note.viewCount : 0 }
   } catch (error) {
     return { error }
   }
@@ -31,13 +31,17 @@ export async function getViews(slug) {
 export async function addView(slug) {
   try {
     await init()
-    const views = await db.collection('views')
-    const view = views.findOneAndUpdate(
+    const notes = await db.collection('notes')
+    const result = await notes.findOneAndUpdate(
       { slug },
-      { $inc: { count: 1 } },
+      { $inc: { viewCount: 1 } },
       { returnDocument: 'after', upsert: true }
     )
-    return { count: view ? view.count : 0 }
+    if (!result.ok) {
+      throw new Error(`Not able to increment view count for slug: ${slug}`)
+    }
+    const note = result.value
+    return { viewCount: note.viewCount }
   } catch (error) {
     return { error }
   }
