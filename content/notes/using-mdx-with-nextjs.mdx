@@ -13,15 +13,21 @@ author:
 date: '2022-02-16'
 ---
 
-## What is MDX?
-
-MDX is a superset of markdown that lets you write JSX directly in your markdown files. It is a powerful way to add dynamic interactivity, and embed components within your content, helping you to bring your pages to life.
+[MDX](https://mdxjs.com/) is a superset of markdown that allows you to use JSX in your markdown files. You can import and embed components in your content to add interactivity to your otherwise static markdown.
 
 ## Why use MDX?
 
 <div className="bg-emerald-400 px-8 text-white">This is a Test</div>
 
 Authoring in markdown is an intuitive way to write content, its brief syntax can enable you to write content that is both readable and maintainable. However, markdown is essentially static content, you can't create dynamic content based on user interactivity. Where MDX shines is in its ability to let you use your React components directly in the markup.
+
+### how about h3?
+
+Does this work?
+
+#### h4?
+
+Maybe?
 
 ## MDX Plugins
 
@@ -45,7 +51,7 @@ The `@next/mdx` sources data from local files, allowing you to create pages with
 
 2. Configure NextJS to support top level `.mdx` pages:
 
-```js
+```js {3}
 // next.config.js
 
 const withMDX = require('@next/mdx')({
@@ -55,9 +61,67 @@ const withMDX = require('@next/mdx')({
     rehypePlugins: []
   }
 })
+
 module.exports = withMDX({
   pageExtensions: ['js', 'jsx', 'md', 'mdx']
 })
+```
+
+### Some HTML
+
+```html
+<header>
+  <nav class="main-nav">
+    <ul>
+      <li>
+        <a href="/">Home</a>
+      </li>
+      <li>
+        <a href="/notes">Notes</a>
+      </li>
+    </ul>
+  </nav>
+</header>
+```
+
+### Some CSS
+
+```css
+header {
+  max-width: 100vw;
+  background: #fefefe;
+}
+
+a[href='/'] {
+  text-decoration: none;
+}
+```
+
+### Some JSX
+
+```jsx
+import * as React from 'react'
+import './App.css'
+import Hello from './components/Hello'
+
+const logo = require('./logo.svg')
+
+function App() {
+  return (
+    <div className="App">
+      <div className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <h2>Welcome to React</h2>
+      </div>
+      <p className="App-intro">
+        To get started, edit <code>src/App.tsx</code> and save to reload.
+      </p>
+      <Hello name="TypeScript" />
+    </div>
+  )
+}
+
+export default App
 ```
 
 ## Conclusion

@@ -1,7 +1,9 @@
 import Image from 'next/image'
+import CustomLink from '../utils/CustomLink'
 
 const MDXComponents = {
-  Image
+  Image,
+  a: CustomLink
 }
 
 export default MDXComponents

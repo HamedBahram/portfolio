@@ -4,18 +4,73 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
 
+html {
+  min-width: 360px;
+  scroll-behavior: smooth;
+}
+
+/* Target the top level __next div */
+/* #__next {} */
+
+/* Tailwindcss Typography */
+
+.prose :is(h1, h2, h3, h4, h5, h6) {
+  @apply scroll-mt-28;
+}
+
+.prose :is(h1, h2, h3, h4, h5, h6) > a {
+  @apply no-underline;
+}
+
+.prose :not(h1, h2, h3, h4, h5, h6) > a {
+  @apply decoration-react-link underline-offset-4;
+}
+
+/* Syntax Highlighting */
+
+pre {
+  @apply !bg-[#282c34] !p-0;
+}
+
+pre::-webkit-scrollbar {
+  height: 0.3rem !important;
+}
+
+pre::-webkit-scrollbar-track {
+  background: #1e1e24 !important;
+}
+
+pre::-webkit-scrollbar-thumb {
+  background: #676e95aa !important;
+}
+
+pre > code {
+  @apply !grid !py-4;
+}
+
 :not(pre) > code {
-  color: #0178df !important;
-  font-family: 'Roboto Mono', monospace !important;
-  font-size: 0.875rem;
-  font-weight: 400 !important;
-  letter-spacing: 0.075em;
+  @apply !font-roboto text-sm !tracking-widest !text-react-link;
 }
 
-pre code {
-  font-family: 'Roboto Mono', monospace !important;
+code {
+  counter-reset: line !important;
 }
 
-.hljs {
-  padding: 1rem 2rem !important;
+code > .line::before {
+  counter-increment: line;
+  content: counter(line);
+  display: inline-block;
+  width: 1rem;
+  margin-right: 2rem;
+  margin-left: 1rem;
+  text-align: right;
+  color: #676e95;
+}
+
+.line {
+  @apply !border-l-4 !border-l-transparent !pr-4;
+}
+
+.line.highlighted {
+  @apply !border-l-4 !border-react-link !bg-slate-500 bg-opacity-50;
 }

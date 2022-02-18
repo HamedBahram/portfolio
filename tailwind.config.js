@@ -6,6 +6,9 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
+      fontFamily: {
+        roboto: ['"Roboto Mono"', 'monospace']
+      },
       colors: {
         react: {
           link: '#0178df',

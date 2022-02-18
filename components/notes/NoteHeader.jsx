@@ -6,11 +6,11 @@ const NoteHeader = ({ meta }) => {
   const { title, slug, author, date, readTime } = meta
 
   return (
-    <header>
+    <header className="mb-12">
       <h1 className="mb-4 text-4xl font-bold leading-tight tracking-tighter md:leading-none lg:text-5xl">
         {title}
       </h1>
-      <div className="mb-6 flex items-center gap-2 text-sm font-light text-zinc-400">
+      <div className="flex items-center gap-2 text-sm font-light text-zinc-400">
         <Avatar name={author.name} src={author.picture} />
         <div className="flex grow flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
