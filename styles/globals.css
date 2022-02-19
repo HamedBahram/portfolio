@@ -90,6 +90,6 @@ div[data-rehype-pretty-code-title] {
   @apply !border-l-4 !border-react-link !bg-slate-500 bg-opacity-25;
 }
 
-span.word {
+span.highlighted.word {
   @apply !rounded !bg-slate-500 bg-opacity-25 !px-2 !py-0.5;
 }
