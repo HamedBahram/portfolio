@@ -1,8 +1,8 @@
 ---
 title: Using MDX with NextJS
 excerpt: Learn what MDX is and how you can use it with NextJS
-coverImage: /images/notes/using-mdx/cover.png
-ogImage: /images/notes/using-mdx/cover.jpeg
+coverImage: /images/notes/using-mdx-with-nextjs/cover.png
+ogImage: /images/notes/using-mdx-with-nextjs/cover.jpeg
 tags:
   - MDX
   - Markdown
@@ -49,7 +49,7 @@ let you compile and transform your content.
 
 ## Using MDX with Next.js
 
-Generally speaking, There are two ways you can integrate MDX into your
+Generally speaking, there are two approaches to integrate MDX in your
 NextJS project that mainly depends on your data source (where your content
 is stored) and how you're planning to use components inside your MDX files
 (more on this later).
@@ -58,9 +58,11 @@ For local files (stored in the local file system), you can use the
 `@next/mdx` package from NextJS team. This allows you to create pages
 directly with the `.mdx` extension inside your `pages/` folder.
 
-For remote data (stored in a database or a CMS), you can use
-`next-mdx-remote` package (a third-party package) to fetch data inside
-`getStaticProps` or `getServerSideProps`.
+For local and/or remote data (stored in a different repo, database or CMS),
+one options is to use `next-mdx-remote` package (a third-party package)
+that allows you to load MDX data inside `getStaticProps` or
+`getServerSideProps`, in the same way you would normally load any other
+data in NextJS.
 
 Let's look at implementing each package in more details.
 
@@ -95,15 +97,16 @@ module.exports = withMDX({
 })
 ```
 
-3.  Create a new `.mdx` page in the `/pages` folder or `/pages/blog` as an
-    example and that's it, you can start writing content and your pages
-    will be served at the corresponding route.
+3.  Create a new `.mdx` page in the `/pages` folder and that's it, you can
+    start writing content and your pages will be served at the
+    corresponding route.
 
 ### Using Components
 
-You can now use a React component directly inside your MDX page. Note that
-components must be defined. You can import them, define them locally, or
-pass them in later as props or via context.
+Now that your NextJS app is configured to read MDX files you can add React
+components inside your MDX pages. Note that components must be defined. You
+can import them, define them locally, or pass them in as props or via
+context.
 
 ```mdx {1,11,15} showLineNumbers
 import { MyComponent } from 'my-components'
@@ -129,12 +132,13 @@ MDX supports JavaScript expressions inside curly braces, basically any JS
 expression that evaluates to something that can be rendered:
 
 ```mdx
-Two 🍰 is: { Math.PI ⁎ 2 }
+Here is a random number: { Math.random() }
 ```
 
 ### Import & Export
 
-MDX also supports ESM import and export statements.
+MDX also supports ESM import and export statements. Note how we imported an
+external component while also defining a local one to use in our MDX page.
 
 ```mdx {3-5} showLineNumbers
 import { ExternalComponent } from './components/...'
@@ -153,12 +157,12 @@ and a local one:
 You can also import data or export variables that can be used inside the
 MDX file:
 
-```mdx {2} showLineNumbers
+```mdx {2} showLineNumbers /sales/2-3
 import { Chart } from './chart.js'
-import population from './population.js'
+import sales from './sales.js'
 export const year = 2022
 
-<Chart data={population} label={year} />
+<Chart data={sales} label={year} />
 ```
 
 ### MDX Content
@@ -182,8 +186,27 @@ import Example from './example.mdx'
 <Example />
 ```
 
-You can also pass props to your MDX component and access them view the
-`props` object inside your MDX file.
+Instead of importing or defining data within MDX, you can also pass data to
+your MDX component via `props` and access them inside your MDX file.
+
+```mdx showLineNumbers title="example.mdx"
+# This is a markdown file expecting props
+
+Hello {props.name.toUpperCase()}
+```
+
+It can be imported from another component and passed props like so:
+
+```jsx {2} showLineNumbers /name="alice"/ title="home.jsx"
+import Link from 'next/link'
+import Example from './example.mdx'
+
+const Home = () => {
+  return <Example name="alice" />
+}
+
+export default Home
+```
 
 You can do a lot with MDX, as [Lee Rob](https://twitter.com/leeerob) put it
 in this [blog post](https://nextjs.org/blog/markdown)
@@ -191,8 +214,8 @@ in this [blog post](https://nextjs.org/blog/markdown)
 > You can use the same component-based principles from React and apply them
 > to authoring Markdown documents
 
-For further readings I recommend checking out the [MDX](https://mdxjs.com/)
-docs.
+For further readings, I recommend checking out the
+[MDX](https://mdxjs.com/) docs.
 
 ### Layout
 
@@ -200,7 +223,7 @@ To add a layout to your MDX page, you can wrap the MDX page with your
 layout component:
 
 ```mdx {15-17} showLineNumbers
-import { MyComponent, BlogLayout } from 'my-components'
+import { MyComponent, BlogLayout } from './components/...'
 
 # My MDX Page with a Layout
 
@@ -254,20 +277,21 @@ some other content
 
 Using gray-matter you can access the frontmatter:
 
-```js {6} showLineNumbers
+```js {7} showLineNumbers
 import fs from 'fs'
 import matter from 'gray-matter'
 
-export const getPostFrontMatter = slug => {
+export const getPostFrontmatter = slug => {
+  const filePath = '/some/file/path'
   const fileContent = fs.readFileSync(filePath, 'utf8')
   const { data, content } = matter(fileContent)
-  return data
+  return data // this is the frontmatter
 }
 ```
 
 As mentioned earlier, MDX doesn't understand frontmatter by default, so we
 need to tell it to ignore the frontmatter otherwise it'll show up in the
-final output once compiled. We can do so by using a remark plugin,
+final output. We can do so by using a remark plugin,
 [remark-frontmatter](https://github.com/remarkjs/remark-frontmatter). We
 can add the plugin in our config file.
 
@@ -276,7 +300,7 @@ means we can't use it in our current commonJS config file. Luckily, from
 NextJS 12, ES modules are supported in the config file by renaming it to
 `next.config.mjs`
 
-```js showLineNumbers title="next.config.mjs"
+```js {7} showLineNumbers title="next.config.mjs"
 import nextMDX from '@next/mdx'
 import remarkFrontmatter from 'remark-frontmatter'
 
@@ -305,14 +329,14 @@ names to components.
 
 It is using a custom link component
 
-<CustomLink href="/">Home Page</CustomLink>
+<CustomLink href="/">Home</CustomLink>
 ```
 
 It can be imported from JavaScript and passed components like so:
 
-```jsx {2,9} showLineNumbers title="example.jsx"
+```jsx {2} showLineNumbers /components/2-3 title="home.jsx"
 import Link from 'next/link'
-import Example from 'example.mdx'
+import Example from './example.mdx'
 
 const components = {
   CustomLink: props => <Link {...props} />
@@ -325,9 +349,9 @@ const Home = () => {
 export default Home
 ```
 
-One of the pleasant aspects of using markdown, is that it maps to native
-HTML elements, we can pass our own custom components that map to HTML
-elements to give our website a custom feel.
+We can use this technic to add custom styles to any element, since markdown
+is ultimately compiled to native HTML elements, we can create our own
+custom components that map to regular HTML tags.
 
 ```jsx showLineNumbers
 import Link from 'next/link'
@@ -337,18 +361,18 @@ import Heading from './components/...'
 const components = {
   h1: Heading.H1,
   h2: Heading.H2,
-  // ...
   a: props => <Link {...props} />,
   img: props => <Image alt={props.alt} layout="fill" {...props} />
+  // ...
 }
 ```
 
 ### MDX Provider
 
-Passing components through props to each MDX file is fine but it can become
-cumbersome. To solve this, we can use
-[@mdx-js/react](https://mdxjs.com/packages/react/) which exposes a context
-provider to pass our custom components through to all our MDX files.
+Passing components through props is fine but it can become cumbersome. To
+solve this, we can use [@mdx-js/react](https://mdxjs.com/packages/react/)
+which is a context provider that makes our custom components available to
+all of our MDX files.
 
 To set this up:
 
@@ -368,7 +392,7 @@ const withMDX = nextMDX({
     `_app.js` and pass a components object as a prop so all MDX pages can
     access your custom components.
 
-```js showLineNumbers
+```js {4,16-18} showLineNumbers
 import Link from 'next/link'
 import Image from 'next/image'
 import Heading from './components/...'
@@ -377,9 +401,9 @@ import { MDXProvider } from '@mdx-js/react'
 const components = {
   h1: Heading.H1,
   h2: Heading.H2,
-  // ...
   a: props => <Link {...props} />,
   img: props => <Image alt={props.alt} layout="fill" {...props} />
+  // ...
 }
 
 function MyApp({ Component, pageProps }) {
@@ -395,10 +419,11 @@ export default MyApp
 
 That's it for `@next/mdx`, you can get started with the
 [with-mdx](https://github.com/vercel/next.js/tree/canary/examples/with-mdx)
-example template to try out writing some MDX content.
+example template which uses this package to try out writing some MDX
+content.
 
-Now let's look at `next-mdx-remote` package, how it's implemented and how
-it differs from the first solution.
+Now let's look at the `next-mdx-remote` package, how it's implemented and
+how it differs from the first solution.
 
 ## `next-mdx-remote`
 
@@ -431,10 +456,10 @@ export async function getStaticProps() {
 ```
 
 This package exposes a function `serialize` which is intended to run server
-side and a component, `<MDXRemote/>` to run client side.
+side and a component, `<MDXRemote/>` for the client side.
 
-`serialize` consumes a string of MDX and returns an object that is intended
-to be passed into `<MDXRemote/>` directly.
+`serialize` consumes a string of MDX and returns an object that should be
+passed to `<MDXRemote/>` directly.
 
 You can also optionally pass options:
 
@@ -452,16 +477,16 @@ serialize(source, {
 })
 ```
 
-- The `scope` object is used to pass props to custom components used inside
-  the MDX file. `scope` can also be passed to `<MDXRemote/>` component.
-- `mdxComponent` options are passed directly to the MDX compiler
+- The `scope` object is used to pass props to the components used inside
+  the MDX file. `scope` can also be passed to `<MDXRemote/>` component as a
+  prop.
+- `mdxOptions` are passed directly to the MDX compiler.
 - `parseFrontmatter` indicates whether or not to parse the frontmatter from
-  the mdx source
+  the mdx source.
 
-`<MDXRemote/>` consumes the output of serialize as well as an optional
-components prop. Its result can be rendered directly into your component.
-To defer hydration of the content and immediately serve the static markup,
-pass the `lazy` prop.
+`<MDXRemote/>` consumes the output of the `serialize` function as well as
+optional components prop. Its result can be rendered directly in your
+components.
 
 ```jsx
 <MDXRemote
@@ -472,32 +497,31 @@ pass the `lazy` prop.
 />
 ```
 
-- `compiledSource` is exposed via the object return from `serialize`
-  containing the compiled string
-- `components` takes a components object to be used inside your MDX file
-- `scope` exposed either through `serialize` or directly passed to the
-  `<MDXRemote/>` is used to provide props to the components used inside the
-  MDX file
+- `compiledSource` is exposed via the object returned from `serialize`.
+- `components` takes a components object to be used inside your MDX file.
+- `scope` exposed either through `serialize` function or directly passed to
+  the `<MDXRemote/>` as a prop, is used to provide props to the components
+  used inside the MDX file.
 - `lazy` takes a boolean and will defer hydration of the content if set to
   `true` to improve initial load time by immediately serving static markup.
 
 #### Caveats
 
-`import` and `export` statements cannot be used inside an MDX file. If you
-need to use components in your MDX files, they should be provided as a prop
-to `<MDXRemote/>`.
+When using `next-mdx-remote`, ESM `import` and `export` statements cannot
+be used inside your MDX files. If you need to use components in your MDX
+files, they should be provided as a prop to `<MDXRemote/>` or via context.
 
 ### MDX Provider
 
 If you want to make components available to any `<MDXRemote/>` being
 rendered in your application, you can use `<MDXProvider/>` from
 `@mdx-js/react`. You can also replace HTML tags by custom components in the
-same way as we did earlier.
+same way.
 
 ## Summary
 
-Using `next-mdx-remote` you are not limited to storing your MDX files
-locally. Also you are not bound to the filesystem-based routing where
+When using `next-mdx-remote` you are not limited to storing your MDX files
+locally. Also you are not bound to the filesystem based routing where
 moving MDX pages around will also change the page's route (URL).
 
 While this gives you flexibility on where you store your MDX files, it is
@@ -505,6 +529,30 @@ not as powerful as `next/mdx` when it comes to MDX features such as using
 ESM `import/export`, JS expressions, exporting and importing MDX content as
 components etc.
 
-Therefore, if you have a lot of files that all import and use different
-components, you may benefit from using `next/mdx` as `next-mdx-remote` is
-very limited in that area.
+If you have a lot of files that all import, define and use different
+components, or if you want to use the same component-based principles from
+React and apply them to your markdown, you may benefit from using
+`next/mdx` as `next-mdx-remote` is limited in that area. On the other hand,
+if you want the freedom to load your data from within `getStaticProps` or
+`getServerSideProps`, regardless of the source, in the same way you would
+load any other data in NextJS, `next-mdx-remote` would be a better fit.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Articles
+
+- [MDX site](https://mdxjs.com/)
+- [NextJS docs on using MDX](https://nextjs.org/docs/advanced-features/using-mdx)
+- [Markdown/MDX with Next.js](https://nextjs.org/blog/markdown) by
+  [Lee Rob](https://twitter.com/leeerob)
+- [Interactive playgrounds](https://delba.dev/blog/interactive-playgrounds)
+  by [Delba Oliveira](https://twitter.com/delba_oliveira)
+
+#### Videos
+
+- [Building A Blog With MDX](https://www.youtube.com/watch?v=dsCfi0yRr1w)
+  by [Lee Rob](https://twitter.com/leeerob)
+- [Interactive Documentation at Scale Using MDX](https://www.youtube.com/watch?v=4dqPA4FF15A)
+  by [Jeff Escalante](https://twitter.com/jescalan)

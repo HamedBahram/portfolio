@@ -89,3 +89,7 @@ div[data-rehype-pretty-code-title] {
 .line.highlighted {
   @apply !border-l-4 !border-react-link !bg-slate-500 bg-opacity-25;
 }
+
+span.highlighted.word {
+  @apply !rounded !bg-slate-500 bg-opacity-25 !px-2 !py-0.5;
+}
