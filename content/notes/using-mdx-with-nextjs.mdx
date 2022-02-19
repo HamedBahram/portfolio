@@ -51,18 +51,16 @@ let you compile and transform your content.
 
 Generally speaking, there are two approaches to integrate MDX in your
 NextJS project that mainly depends on your data source (where your content
-is stored) and how you're planning to use components inside your MDX files
-(more on this later).
+is stored) and how you're planning to use components inside your MDX files.
 
 For local files (stored in the local file system), you can use the
 `@next/mdx` package from NextJS team. This allows you to create pages
 directly with the `.mdx` extension inside your `pages/` folder.
 
 For local and/or remote data (stored in a different repo, database or CMS),
-one options is to use `next-mdx-remote` package (a third-party package)
-that allows you to load MDX data inside `getStaticProps` or
-`getServerSideProps`, in the same way you would normally load any other
-data in NextJS.
+one option is to use `next-mdx-remote` package (a third-party package) that
+allows you to load MDX data inside `getStaticProps` or `getServerSideProps`
+in the same way you would normally load any other data in NextJS.
 
 Let's look at implementing each package in more details.
 
@@ -197,7 +195,7 @@ Hello {props.name.toUpperCase()}
 
 It can be imported from another component and passed props like so:
 
-```jsx {2} showLineNumbers title="home.jsx"
+```jsx {2,5} showLineNumbers title="home.jsx"
 import Link from 'next/link'
 import Example from './example.mdx'
 
@@ -334,7 +332,7 @@ It is using a custom link component
 
 It can be imported from JavaScript and passed components like so:
 
-```jsx {2} showLineNumbers title="home.jsx"
+```jsx {2,9} showLineNumbers title="home.jsx"
 import Link from 'next/link'
 import Example from './example.mdx'
 
@@ -349,9 +347,9 @@ const Home = () => {
 export default Home
 ```
 
-We can use this technic to add custom styles to any element, since markdown
-is ultimately compiled to native HTML elements, we can create our own
-custom components that map to regular HTML tags.
+We can use this technique to add custom styles to any element, since
+markdown is ultimately compiled to native HTML elements, we can create our
+own custom components that map to regular HTML tags.
 
 ```jsx showLineNumbers
 import Link from 'next/link'
@@ -550,7 +548,7 @@ Here are some of the resources that inspired this note:
 - [Interactive playgrounds](https://delba.dev/blog/interactive-playgrounds)
   by [Delba Oliveira](https://twitter.com/delba_oliveira)
 
-#### Videos
+#### Tutorials
 
 - [Building A Blog With MDX](https://www.youtube.com/watch?v=dsCfi0yRr1w)
   by [Lee Rob](https://twitter.com/leeerob)
