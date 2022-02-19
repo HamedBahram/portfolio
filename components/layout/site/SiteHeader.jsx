@@ -8,7 +8,7 @@ const SiteHeader = () => {
   useEffect(() => setMounted(true), [])
 
   return (
-    <header className="sticky top-0 z-10 mb-12 bg-white bg-opacity-95 py-7 px-4 dark:bg-react dark:bg-opacity-95">
+    <header className="sticky top-0 z-10 mb-12 bg-white bg-opacity-95 py-6 px-4 dark:bg-react dark:bg-opacity-95">
       <nav className="mx-auto flex w-full max-w-2xl flex-row-reverse items-center justify-between px-8">
         {mounted && (
           <button

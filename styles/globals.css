@@ -2,8 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
-
 html {
   min-width: 360px;
   scroll-behavior: smooth;
@@ -29,7 +27,7 @@ html {
 /* Syntax Highlighting */
 
 pre {
-  @apply !bg-[#282c34] !p-0;
+  @apply !bg-[#2b303b] !p-0 dark:!bg-[#282c34];
 }
 
 pre::-webkit-scrollbar {
@@ -38,33 +36,50 @@ pre::-webkit-scrollbar {
 
 pre::-webkit-scrollbar-track {
   background: #1e1e24 !important;
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
 }
 
 pre::-webkit-scrollbar-thumb {
   background: #676e95aa !important;
+  border-radius: 6px !important;
 }
 
 pre > code {
-  @apply !grid !py-4;
+  @apply !grid !py-4 !font-mono !text-sm;
 }
 
 :not(pre) > code {
-  @apply !font-roboto text-sm !tracking-widest !text-react-link;
+  @apply !px-1 !font-mono text-sm !tracking-widest !text-react-link dark:!text-sky-600;
 }
 
 code {
   counter-reset: line !important;
+  padding: 0 16px !important;
 }
 
-code > .line::before {
+code[data-line-numbers] {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+code[data-line-numbers] > .line::before {
   counter-increment: line;
   content: counter(line);
   display: inline-block;
   width: 1rem;
-  margin-right: 2rem;
-  margin-left: 1rem;
+  margin-right: 1.25rem;
+  margin-left: 0.75rem;
   text-align: right;
   color: #676e95;
+}
+
+div[data-rehype-pretty-code-title] + pre {
+  @apply !mt-0 !rounded-tl-none;
+}
+
+div[data-rehype-pretty-code-title] {
+  @apply !mt-6 !max-w-max !rounded-t !bg-[#2b303b] !px-4 !py-0.5 !text-[#676e95] dark:!border-b dark:!border-b-slate-400 dark:!bg-[#282c34];
 }
 
 .line {
@@ -72,5 +87,5 @@ code > .line::before {
 }
 
 .line.highlighted {
-  @apply !border-l-4 !border-react-link !bg-slate-500 bg-opacity-50;
+  @apply !border-l-4 !border-react-link !bg-slate-500 bg-opacity-25;
 }
