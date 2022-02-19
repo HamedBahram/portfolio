@@ -197,7 +197,7 @@ Hello {props.name.toUpperCase()}
 
 It can be imported from another component and passed props like so:
 
-```jsx {2} showLineNumbers /name="alice"/ title="home.jsx"
+```jsx {2} showLineNumbers title="home.jsx"
 import Link from 'next/link'
 import Example from './example.mdx'
 
@@ -239,8 +239,6 @@ Checkout my React component:
 
 export default ({ children }) => (
   <BlogLayout meta={meta}>{children}</BlogLayout>
-
-
 )
 ```
 
@@ -336,7 +334,7 @@ It is using a custom link component
 
 It can be imported from JavaScript and passed components like so:
 
-```jsx {2} showLineNumbers /components/2-3 title="home.jsx"
+```jsx {2} showLineNumbers title="home.jsx"
 import Link from 'next/link'
 import Example from './example.mdx'
 
