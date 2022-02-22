@@ -5,7 +5,7 @@ const SiteLayout = ({ children }) => {
   return (
     <>
       <SiteHeader />
-      <main className="mx-auto mb-16 max-w-2xl px-8">{children}</main>
+      <main className="mx-auto mb-16 max-w-2xl px-6">{children}</main>
       <SiteFooter />
     </>
   )

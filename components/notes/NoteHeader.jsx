@@ -14,7 +14,8 @@ const NoteHeader = ({ meta }) => {
         <Avatar name={author.name} src={author.picture} />
         <div className="flex grow flex-col sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <span>{author.name}</span> / <DateFormatter dateString={date} />
+            <span>{author.name}</span> /{' '}
+            <DateFormatter dateString={date} />
           </div>
 
           <div className="flex items-center gap-1">

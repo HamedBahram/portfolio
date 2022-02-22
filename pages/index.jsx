@@ -2,10 +2,9 @@ import Intro from '@/components/home/Intro'
 import RecentNotes from '@/components/notes/RecentNotes'
 import RecentProjects from '@/components/projects/RecentProjects'
 import { getAllNotesMeta } from '@/lib/notes'
+import { getAllProjectsMeta } from '@/lib/projects'
 
-import { projects } from 'data/dummy'
-
-const Home = ({ notes }) => {
+const Home = ({ notes, projects }) => {
   return (
     <>
       <Intro />
@@ -17,10 +16,12 @@ const Home = ({ notes }) => {
 
 export async function getStaticProps() {
   const notes = getAllNotesMeta()
+  const projects = getAllProjectsMeta()
 
   return {
     props: {
-      notes
+      notes: notes.slice(0, 5),
+      projects: projects.slice(0, 3)
     }
   }
 }

@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 const SiteFooter = () => {
   return (
-    <footer className="mx-auto mb-8 w-full max-w-2xl px-4">
+    <footer className="mx-auto mb-8 w-full max-w-2xl px-6">
       <ul className="flex w-full justify-center gap-10 border-t border-react-link border-opacity-50 pt-10">
         <li>
           <Link href="https://twitter.com/haamedbahram">

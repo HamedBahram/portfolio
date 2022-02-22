@@ -1,7 +1,7 @@
 import { MDXRemote } from 'next-mdx-remote'
 import MDXComponents from '@/components/mdx/MDXComponents'
 
-const NoteMain = ({ source }) => {
+const ProjectMain = ({ source }) => {
   return (
     <main className="prose max-w-none dark:prose-invert">
       <MDXRemote {...source} components={MDXComponents} />
@@ -9,4 +9,4 @@ const NoteMain = ({ source }) => {
   )
 }
 
-export default NoteMain
+export default ProjectMain

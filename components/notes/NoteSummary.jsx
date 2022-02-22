@@ -9,19 +9,21 @@ const NoteSummary = ({ meta }) => {
   const views = Number(data ? data.viewCount : 0)
 
   return (
-    <Link href={`/notes/${slug}`}>
-      <a>
-        <div className="mb-6">
-          <div className="flex items-center justify-between gap-4">
-            <h4 className="font-semibold">{title}</h4>
-            <p className="text-sm font-light text-gray-500">
-              {`${views > 0 ? views.toLocaleString() : '---'} views`}
-            </p>
+    <li>
+      <Link href={`/notes/${slug}`}>
+        <a>
+          <div className="mb-6">
+            <div className="flex items-center justify-between gap-4">
+              <h4 className="font-semibold">{title}</h4>
+              <p className="text-sm font-light text-gray-500">
+                {views > 0 ? views.toLocaleString() : '---'} views
+              </p>
+            </div>
+            <p className="text-gray-500">{excerpt}</p>
           </div>
-          <p className="text-gray-500">{excerpt}</p>
-        </div>
-      </a>
-    </Link>
+        </a>
+      </Link>
+    </li>
   )
 }
 

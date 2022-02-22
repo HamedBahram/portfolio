@@ -23,25 +23,31 @@ export const notes = [
 
 export const projects = [
   {
-    title: 'ReactJS',
+    title: 'Real Estate Application',
     summary:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque, quasi autem placeat unde ducimus tempore?',
-    slug: 'reactjs',
-    icon: 'reactjs'
+      'Full stack real estate application, using ExpressJS, MongoDB and EJS engine on the backend and vanilla JavaScript on the frontend',
+    slug: 'nestzoom',
+    icon: 'expressjs'
   },
   {
-    title: 'NextJS',
-    summary:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque, quasi autem placeat unde ducimus tempore?',
-    slug: 'nextjs',
+    title: 'NextJS Portfolio Site',
+    summary: 'Portfolio site using NextJS with MDX',
+    slug: 'portfolio',
     icon: 'nextjs'
   },
   {
-    title: 'NodeJS',
+    title: 'Movie Search App',
     summary:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Eaque, quasi autem placeat unde ducimus tempore?',
-    slug: 'nodejs',
-    icon: 'nodejs'
+      'Full stack movie search app, using ExpressJS and MongoDB on the backend and React on the frontend',
+    slug: 'nflix',
+    icon: 'reactjs'
+  },
+  {
+    title: 'FriendsBook',
+    summary:
+      'Facebook clone using ExpressJS for the API layer and MongoDB on the backend with React on the frontend',
+    slug: 'friendsbook',
+    icon: 'reactjs'
   },
   {
     title: 'MongoDB',
