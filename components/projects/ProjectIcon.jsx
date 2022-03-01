@@ -1,12 +1,28 @@
-const ProjectIcon = ({ icon }) => {
+import Image from 'next/image'
+import { useTheme } from 'next-themes'
+import dark from '../../public/images/projects/nestzoom/dark.svg'
+import light from '../../public/images/projects/nestzoom/light.svg'
+
+const ProjectIcon = ({ icon, className }) => {
+  const { resolvedTheme } = useTheme()
+
   return (
-    <div className="p-3">
+    <div className={className}>
+      {icon === 'nestzoom' && (
+        <div className="flex justify-center">
+          <Image
+            src={resolvedTheme === 'dark' ? dark : light}
+            alt="nest zoom logo"
+            layout="fixed"
+          />
+        </div>
+      )}
       {icon === 'reactjs' && (
         <svg
           aria-hidden="true"
           focusable="false"
           data-icon="react"
-          className="h-10"
+          className="mx-auto h-10"
           role="img"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"
@@ -22,7 +38,7 @@ const ProjectIcon = ({ icon }) => {
           aria-hidden="true"
           focusable="false"
           data-icon="javascript"
-          className="h-10"
+          className="mx-auto h-10"
           role="img"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 448 512"
@@ -38,7 +54,7 @@ const ProjectIcon = ({ icon }) => {
           aria-hidden="true"
           focusable="false"
           data-icon="nodejs"
-          className="h-10"
+          className="mx-auto h-10"
           role="img"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 640 512"
@@ -51,7 +67,7 @@ const ProjectIcon = ({ icon }) => {
       )}
       {icon === 'nextjs' && (
         <svg
-          className="h-8"
+          className="mx-auto h-8"
           viewBox="0 0 148 90"
           version="1.1"
           xmlns="http://www.w3.org/1999/xlink"
@@ -65,7 +81,7 @@ const ProjectIcon = ({ icon }) => {
       )}
       {icon === 'mongodb' && (
         <svg
-          className="h-6"
+          className="mx-auto h-6"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 1112.61 300"
         >
@@ -120,7 +136,7 @@ const ProjectIcon = ({ icon }) => {
           aria-hidden="true"
           focusable="false"
           data-icon="server"
-          className="h-10"
+          className="mx-auto h-10"
           role="img"
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 512 512"

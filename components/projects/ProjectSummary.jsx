@@ -8,10 +8,10 @@ const ProjectSummary = ({ project }) => {
     <li>
       <Link href={`/projects/${slug}`}>
         <a>
-          <div className="mb-4 flex items-center justify-between gap-4 rounded-md px-5 py-4 shadow-md transition-shadow duration-150 ease-in hover:shadow-slate-400 dark:bg-[#282c34] dark:hover:shadow-slate-700">
-            <ProjectIcon icon={icon} />
-            <div className="grow">
-              <h3 className="font-semibold">{title}</h3>
+          <div className="mb-4 flex flex-col items-center gap-4 rounded-md px-5 py-5 shadow-md transition-shadow duration-150 ease-in hover:shadow-slate-400 dark:bg-[#282c34] dark:hover:shadow-slate-700 sm:h-32 sm:flex-row sm:items-center sm:justify-center sm:py-4">
+            <ProjectIcon icon={icon} className="w-4/5 sm:w-1/4" />
+            <div className="w-4/5 text-center sm:w-3/4 sm:text-left">
+              <h3 className="mb-1.5 font-semibold">{title}</h3>
               <p className="text-gray-500">{summary}</p>
             </div>
           </div>
