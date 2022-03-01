@@ -1,30 +1,47 @@
 ---
 title: 'Real Estate Application'
 summary:
-  'Full stack real estate application, using ExpressJS, MongoDB and EJS
-  engine on the backend and vanilla JavaScript on the frontend'
+  'Fullstack real estate application with user authentication and map
+  search feature.'
 slug: 'nestzoom'
 date: '2020-01-01'
 icon: 'expressjs'
 index: 0
 ---
 
-Full stack real estate application, using ExpressJS, MongoDB and EJS engine
-on the backend and vanilla JavaScript on the frontend
+Real estate application that allows users to create accounts, search, like
+and save listings, look up neighborhood stats and listing history including
+sold data.
 
 You can visit the live application on
 [nest zoom realty's](https://www.nestzoom.com/) website.
 
-## Tech Stack
+## Tech stack
 
-- ExpressJS
-- MongoDB
-- EJS engine
-- Vanilla JavaScript
-- bootstrap css
-- google cloud storage
-- GCP VM for data layer
-- Google Maps API
+This is a fullstack JavaScript application that incorporates a
+non-relational database. For safety reasons, we won't dive into the tech
+stack. However, we'll describe some of the application features and
+challenges along the way in more detail.
+
+## Features
+
+- Search autocomplete on address, neighborhood, city, postal code and MLS#
+- Map search page for locating listings and neighborhoods more easily
+- Map drawing tools to limit the search result to any desired area
+- Ability to filter search results based on price, property type, location,
+  number of beds/baths and more.
+- Ability to save a search and get daily email updates
+- Market stats page that aggregates common market indicators
+- Neighborhood stats and listing history for each home
+- Sold data and listing history going back two years
+- School information
+- Mortgage payment calculator
+- Easily book a viewing appointments from the listing page
+- User authentication for protecting sold data and restricted listings
+- User dashboard
+- Admin panel for managing users, showings and activities
+- Hourly listing data update from the real estate board
+- Bot detection and protection
 
 ## Challenges
 
@@ -34,28 +51,59 @@ The Real Estate Transaction Standard (RETS) is a technology used to
 exchange standardized real estate data between clients and the Multiple
 Listing Service (MLS).
 
-This is an old standard and it has been almost entirely replaced in the US,
-but unfortunately still used in Canada.
+This is an old standard and it's been entirely replaced in the US by API
+based standards and protocols, but unfortunately still in use in major
+cities in Canada.
 
-Working with the RETS server from these MLS systems require a RETS client
-library on the application side to fetch new listings and corresponding
-media. But since this system is old and hardly used in bigger real estate
-boards, the ecosystem of client libraries are limited and often way out of
-date.
+Working with the RETS server from these MLS systems requires a RETS client
+application to connect and fetch new listings and corresponding media,
+however since this system is old and hardly used in bigger real estate
+boards, the ecosystem of client libraries are limited and often very
+outdated.
 
-## Features
+Fortunately we were able to fork an
+[existing library](https://github.com/WinUP/rets-client) and twig it to fit
+our target real estate board server configs.
 
-- Use accounts and confirmation
-- map search including custom drawing tools
-- saved searches with daily emails
-- market stats
-- listing history and neighborhood stats
-- sold data
-- mortgage payment calculator
-- liked listings
-- book showings
-- user dashboard
-- admin panel
-- bot detection
+### Micro services
 
-## Future Updates
+We have implemented a dedicated server that connects to the real estate
+board's server and pulls listing data on an hourly basis using the above
+mentioned RETS client package.
+
+### Asset management
+
+We are using [Google cloud storage](https://cloud.google.com/) to store
+media files (mainly listing photos) and
+[Cloudinary](https://cloudinary.com/) as our image optimization service to
+serve optimized images on the fly based on the user's browsers.
+
+### Maps and Geolocation
+
+We are utilizing Google Maps API to geocode listings which enables map
+search. We also had to integrate geo coordinates in our queries against the
+database to accurately return results within the specified area.
+
+The map search also features drawing tools. This will allow users to go
+beyond defined neighborhood boundaries and limit their search result to any
+desired area.
+
+## In the pipeline
+
+More features are in the coming for this app, some of which includes:
+
+- Automated home valuation based on recent sales
+- Adding sold data going back 15 years
+- More search filters for more granular results
+- Investment analysis metrics for each listing
+- Ability to like listings and create favorite lists
+- Live chat widget
+- SEO optimization
+
+We are currently rewriting the client side application in React to add a
+more native app feel to the site. More specifically we'll be using NextJS
+framework to serve static HTML when possible to improve user experience by
+decreasing initial load times while also allowing search engines to
+correctly index the page's content. NextJS also comes with built-in image
+optimization that will hopefully replace the need for using a paid service
+like Cloudinary.
