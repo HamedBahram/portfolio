@@ -46,3 +46,26 @@ export async function addView(slug) {
     return { error }
   }
 }
+
+///////////////////
+/// SUBSCRIBERS ///
+///////////////////
+
+export async function addSubscriber(email) {
+  try {
+    await init()
+    const subscribers = await db.collection('subscribers')
+    const result = await subscribers.findOneAndUpdate(
+      { email },
+      { $set: { email, updated_at: new Date() } },
+      { returnDocument: 'after', upsert: true }
+    )
+    if (!result.ok) {
+      throw new Error('Something went wrong! please try again.')
+    }
+    const subscriber = result.value
+    return { subscriber }
+  } catch (error) {
+    return { error }
+  }
+}

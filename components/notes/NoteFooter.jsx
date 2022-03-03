@@ -1,5 +1,11 @@
+import Subscribe from '../utils/Subscribe'
+
 const NoteFooter = () => {
-  return <footer></footer>
+  return (
+    <footer>
+      <Subscribe />
+    </footer>
+  )
 }
 
 export default NoteFooter

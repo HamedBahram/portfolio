@@ -1,6 +1,7 @@
 import Intro from '@/components/home/Intro'
 import RecentNotes from '@/components/notes/RecentNotes'
 import RecentProjects from '@/components/projects/RecentProjects'
+import Subscribe from '@/components/utils/Subscribe'
 import { getAllNotesMeta } from '@/lib/notes'
 import { getAllProjectsMeta } from '@/lib/projects'
 
@@ -10,6 +11,7 @@ const Home = ({ notes, projects }) => {
       <Intro />
       <RecentNotes notes={notes} />
       <RecentProjects projects={projects} />
+      <Subscribe />
     </>
   )
 }

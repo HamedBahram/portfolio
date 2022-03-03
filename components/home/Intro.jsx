@@ -12,9 +12,9 @@ const Intro = () => {
           </span>
         </h1>
         <p className="text-gray-500">
-          Welcome to my digital nook. I&#39;m a web developer in the making
-          and here, I share what I&#39;ve been working on and the things I
-          learned along the way.
+          Welcome to my digital nook. I&#39;m a self-taught web developer
+          and here, I share what I&#39;ve been working on and the things
+          I&#39;ve learned along the way.
         </p>
       </div>
       <Image

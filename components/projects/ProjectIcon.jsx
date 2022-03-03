@@ -1,7 +1,7 @@
 import Image from 'next/image'
 import { useTheme } from 'next-themes'
-import dark from '../../public/images/projects/nestzoom/dark.svg'
-import light from '../../public/images/projects/nestzoom/light.svg'
+import dark from '@/public/images/projects/nestzoom/dark.svg'
+import light from '@/public/images/projects/nestzoom/light.svg'
 
 const ProjectIcon = ({ icon, className }) => {
   const { resolvedTheme } = useTheme()
