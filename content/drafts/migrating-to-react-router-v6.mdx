@@ -1,0 +1,218 @@
+---
+title: Migrating to React Router V6
+excerpt: Migrating from react-router v5 to v6
+coverImage: /images/notes/migrating-to-react-router-v6/cover.png
+ogImage: /images/notes/migrating-to-react-router-v6/cover.png
+tags:
+  - ReactJS
+  - React Router
+  - Client-side Routing
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-02-15'
+---
+
+**Switch**
+
+```jsx
+<Switch /> component has changed to <Routes />
+
+<Switch>
+    <Route path='/welcome'>
+        <Welcome />
+    </Route>
+</Switch>
+```
+
+**element prop**
+
+Instead of passing a component as the child to `<Route>` component when the
+path matches, you would pass an “element” prop and pass the desired
+component there.
+
+```jsx
+<Routes>
+  <Route path="/welcome" element={<Welcome />} />
+</Routes>
+```
+
+**exact prop**
+
+We also no longer need the “exact” prop to be passed for matching the exact
+path. It is now the default behavior.
+
+If you still want the previous behavior, you can add a `*` wildcard
+character to the end of your path and still match all paths that begin with
+the specified path.
+
+```jsx
+<Routes>
+  <Route path="/products/*" element={<Products />} />
+</Routes>
+```
+
+This way if you have not defined a more specific path for what comes after
+“/products” the above route will be picked up, but if you have a more
+specific path defined, react-router v6 would pick that.
+
+```jsx
+<Routes>
+  <Route path="/products/*" element={<Products />} />
+  <Route path="/products/:productId" element={<ProductDetail />} />
+</Routes>
+```
+
+In the above example, even though we have included a wildcard character
+after “/products”, v6 would still match the second route because it is a
+more specifically defined route.
+
+Also, unlike v5 the order in which you register the routes doesn't matter,
+v6 would try to match the best possible route regardless of the order they
+were registered.
+
+```jsx
+<Routes>
+  <Route path="/products/edit" element={<Products />} />
+  <Route path="/products/:productId" element={<ProductDetail />} />
+</Routes>
+```
+
+In the above example we had to register the “/edit” path before the dynamic
+“/:productId” path or the “/:productId” would have always won. But in v6
+the order doesn't matter as the best match would win.
+
+**NavLink**
+
+the `activeClassName` prop is removed in v6, but instead, you can pass a
+function to the `className` prop to find out if the current link is active.
+
+```jsx
+<NavLink to="/" className={link => (link.isActive ? 'active' : '')}>
+  Home
+</NavLink>
+```
+
+**Redirect**
+
+The `<Redirect />` component has changed to `<Navigate />`
+
+```jsx
+<Routes>
+    <Route path='/' element={<Navigate to='/welcome' />} >
+    <Route path='/welcome' element={<Welcome />} >
+</Routes>
+```
+
+If you want to truly redirect by replacing the current location instead of
+pushing a new location object into the stack you should add the “replace”
+prop.
+
+```jsx
+<Route path='/' element={<Navigate replace to='/welcome' />} >
+```
+
+**Nested Routes**
+
+It is now mandatory to wrap your `<Route>` components with a `<Routes>`
+component in all nested routes even if there is only one route. This is
+also true for your top-level routes. Where in v5 wrapping your routes with
+a `<Switch />` component was optional, in v6 you should always wrap your
+`<Route />` with a `<Routes />` component.
+
+But that's not all, you also need to add the `*` wildcard character to the
+top-level route to also match the nested routes.
+
+```jsx
+<Routes>
+  <Route path="/users/*" element={<Users />} />
+</Routes>
+```
+
+And finally, you have to change the nested routes “path” to be relative to
+the path of the top-level route they are nested in. This wasn't the case in
+v5.
+
+Inside of the User component you should have
+
+```jsx
+<Routes>
+  <Route path="/new" element={<RegisterForm />} />
+</Routes>
+```
+
+Instead of:
+
+```jsx
+<Routes>
+  <Route path="/users/new" element={<RegisterForm />} />
+</Routes>
+```
+
+So you don't need to repeat the full path in the nested routes. Also, we no
+longer need the prefix “/” in the beginning, we can just add
+
+```jsx
+<Routes>
+  <Route path="new" element={<RegisterForm />} />
+</Routes>
+```
+
+Links will also need to be relative to the parent route.
+
+You can alternatively define nested routes in your top-level component.
+
+```jsx
+<Routes>
+  <Route path="/users/*" element={<Users />}>
+    <Route path="new" element={<RegisterForm />} />
+  </Route>
+</Routes>
+```
+
+This way, you would see all your routes and nested routes in one place,
+instead of spreading them across multiple components as you had to do in
+react-router v5.
+
+However, now that our nested route is not defined inside of the User
+component (parent component) we should tell react-router where exactly we
+want to render the content of the nested route when it is matched. For
+that, we need to use the new `<Outlet />` component from react-router as a
+placeholder to tell the router where to render the components of the nested
+route when they match.
+
+**useNavigate()**
+
+Instead of using the `useHistory()` hook to push or replace a new location
+and programmatically navigate the user, we can use the `useNavigate()`
+hook.
+
+```jsx
+const navigate = useNavigate()
+navigate('/')
+```
+
+And if you want to redirect the user you can pass a second argument to the
+`navigate()` function and set the “replace” property to true. Which will
+replace the current location (URL) instead of adding a new location to the
+stack.
+
+```jsx
+const navigate = useNavigate()
+navigate('/', { replace: true })
+```
+
+Forward and backward navigation is also possible with this `navigate()`
+function, you just need to pass a number to tell the navigate function how
+many pages you want to go backward or forward.
+
+```jsx
+navigate(1) // to go forward
+navigate(-1) // to go backward
+navigate(-2) // to go 2 pages back
+```
+
+**Prompt**
+
+The prompt component which was used to prevent accidentally leaving a page
+with unsaved changes no longer exists in the v6 as of now.

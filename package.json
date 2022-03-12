@@ -22,7 +22,7 @@
     "react-spinners": "^0.11.0",
     "reading-time": "^1.5.0",
     "rehype-autolink-headings": "^6.1.1",
-    "rehype-pretty-code": "^0.2.2",
+    "rehype-pretty-code": "^0.2.3",
     "rehype-slug": "^5.0.1",
     "shiki": "^0.10.1",
     "swr": "^1.2.1",

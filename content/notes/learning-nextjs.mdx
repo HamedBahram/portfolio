@@ -1,0 +1,1691 @@
+---
+title: Learning NextJS
+excerpt: Learn how to use NextJS for production level React applications
+coverImage: /images/notes/learning-nextjs/cover.png
+ogImage: /images/notes/learning-nextjs/cover.png
+tags:
+  - NextJS
+  - ReactJS
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-03-04'
+---
+
+[NextJS](https://nextjs.org/) is a React framework for production. It
+enhances React with common application requirements such as routing, data
+fetching, static generation, and more. It provides additional structure,
+features, and optimizations for your application.
+
+## Key Features
+
+Here are some of the key features:
+
+- Server-side rendering
+- Filesystem based routing
+- API routes
+
+#### Server-side Rendering
+
+One of the most important features of NextJS is
+[server-side rendering](https://nextjs.org/docs/basic-features/pages#server-side-rendering)
+or SSR in short. Server-side rendering is simply, generating the HTML
+content of a page on the server instead of the client (the browser).
+
+If you inspect the source code of a page built with regular React, you'll
+see an empty HTML page with a `<script>` tag linking to a JavaScript file.
+The JavaScript file is the bundled React code responsible for rendering our
+app inside the HTML template. All of which is happening in the browser.
+
+```html {6,10} showLineNumbers title="index.html"
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    // ...
+    <title>React App</title>
+    <script defer src="/static/js/bundle.js"></script>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
+```
+
+This means the actual HTML page the server sends back to the browser is
+empty. It's only after React code (the JavaScript file) is downloaded and
+executed in the browser that the HTML is generated.
+
+The potential downside here is first, the initial load time it takes for
+the React code to be downloaded and executed in the browser for the users
+to see our page, and secondly lack of any meaningful HTML content for
+search engines to access, crawl and index for SEO purposes.
+
+On top of that, if your app depends on data from an external API, the data
+fetching doesn't start until React is executed first, resulting in more
+loading state.
+
+In contrast, if the HTML was generated on the server with required data
+already baked in before it's sent to the client, not only users would
+experience a faster load time, but also search engines would be able to
+access and index the page content.
+
+NextJS has built-in server-side rendering which, as mentioned above,
+improves initial load time and search engine optimization. If you inspect
+the source code of a page built with NextJS, you'll see an HTML page with
+the content already rendered on the server.
+
+#### Filesystem based Routing
+
+In traditional React apps you'd use a router that watches the URL and
+prevents the browser from sending a request to the server when the URL
+changes and instead renders different components giving the user the
+impression of navigating between different pages in a single page
+application.
+
+<BackgroundReading
+  href="/notes/single-page-applications"
+  title="Background reading:"
+>
+  Single Page Applications
+</BackgroundReading>
+
+In short, the router changes what's visible on the screen based on the URL
+without sending an extra request to the server. Unlike standard React
+applications where we define our routes in code using libraries like
+[react-router](https://reactrouter.com/), NextJS has a filesystem based
+router built on the concept of pages. When a file is added to the `pages`
+directory, it's automatically available as a route.
+
+This is similar to how you would build a simple HTML site where different
+_HTML files_ represent different pages of your site. Not only routing in
+NextJS does not require any extra package it also has no code to set up
+which makes it easy to use and highly intuitive.
+
+#### API Routes
+
+With NextJs, it is easy to add our own backend API into our React project
+and make it a fullstack app. Any file inside the folder `pages/api` is
+mapped to `/api/*` and will be treated as an API endpoint instead of a
+page.
+
+These routes are executed on the server-side only where you can perform any
+server related task like working with the filesystem, connecting to a
+database, authentication, and more.
+
+## Pages in NextJS
+
+In NextJS, a page is a React component exported from a file in the pages
+directory. Pages are associated with a route based on their filename. For
+example:
+
+`pages/index.js` is associated with the `/` route.  
+`pages/posts/first-post.js` is mapped to `/posts/first-post` route.
+
+Simply create a JS file under the `pages` directory, and the path to the
+file becomes the URL path. In a way, this is similar to building websites
+using HTML files. Instead of writing HTML you write JSX and use React
+components.
+
+With this file-based structure, we can easily create nested paths as well,
+just create subfolders with nested files to create nested routes. In each
+folder, `index.js` is a special file that maps to the root path of that
+folder.
+
+`pages/index.js` is associated with the root path `/`  
+`pages/posts/index.js` is associated with the `/posts` route.
+
+So an alternative to creating an about page with `pages/about.js` would be
+to create a subfolder named `about` in the `pages` folder with an
+`index.js` file inside of it.
+
+`pages/about.js` or `pages/about/index.js` will both be associated with the
+`/about` route.
+
+### Dynamic Routes
+
+We can use a square bracket `[id]` to create dynamic routes. For example:
+
+`pages/products/[productId].js` is mapped to `/products/p123` route.
+
+The matched path parameter will be sent as a query parameter to the page,
+and it will be merged with the other query parameters.
+
+For example, the route `/post/abc` will have the following query object:
+
+```jsx
+// the query object:
+{
+  pid: 'abc'
+}
+```
+
+Similarly, the route `/post/abc?foo=bar` will have the following query
+object:
+
+```jsx
+// the query object:
+{
+  foo: "bar",
+  pid: "abc"
+}
+```
+
+Keep in mind that route parameters will override query parameters with the
+same name.
+
+### Accessing the Route Parameters
+
+We can use the `useRouter()` hook from `next/router` to access the dynamic
+parameters of our paths. Dynamic parameters are typically used as a unique
+identifier to fetch data for the page.
+
+```jsx
+const router = useRouter()
+```
+
+The router object returned from the hook, exposes properties and methods
+that allow us to access and work with the window's location object.
+`router.pathname` for example gives us the path matched by the router,
+`router.asPath` will give us the actual path in the current URL and
+`router.query` will give us an object containing our dynamic parameters.
+
+For example, if we visit `/products/p123` in the browser:
+
+```jsx
+const router = useRouter()
+// router object would look something like this:
+{
+  pathname: '/products/[productId]',
+  asPath: 'products/p123',
+  query: {
+    productId: 'p123'
+  }
+}
+```
+
+### Dynamic Nested Routes
+
+We can also create dynamic nested routes by creating subfolders with square
+bracket names that can hold other files associated with nested paths.
+
+For example, if we have a `/clients` route that shows a list of all clients
+and a [clientId] folder that contains an `index.js` to show a client detail
+page and then a `/projects` folder with a `[projectId].js` file inside to
+show a specific project for the specific client.
+
+`/clients/[clientId]/projects/[projectId].js` will be associated with
+`/clients/c123/projects/p123` route.
+
+We can also have dynamic files directly in dynamic folders:
+
+`/client/[clientId]/[projectId].js` is associated with `/clients/c123/p123`
+
+```jsx
+// the query object:
+{
+	clientId: 'c123',
+	projectId: 'p123'
+}
+```
+
+### Catch-all Routes
+
+Dynamic routes can be extended to catch all paths by adding three dots
+`...` inside the brackets like `[...slug]` or `[...param]` in which case
+`pages/post/[...slug].js` matches anything after `/post` like `/post/a`,
+`/post/a/b` and also `/post/a/b/c`.
+
+Matched parameters will be sent as a query parameter ('slug' in this
+example) to the page, and it will _always_ be an array, so, the path
+`/post/a` will have the following query object:
+
+```jsx
+// the query object:
+{
+  slug: ['a']
+}
+```
+
+And in the case of `/post/a/b`, and any other matching path, new parameters
+will be added to the array, like so:
+
+```jsx
+// the query object:
+{
+  slug: ['a', 'b']
+}
+```
+
+### Optional Catch-all Routes
+
+Catch-all routes can be made optional by including the parameter in double
+brackets `[[...slug]]`. For example, `pages/post/[[...slug]].js` will match
+`/post`, `/post/a`, and `/post/a/b`, and so on.
+
+The main difference between catch-all and optional catch-all routes is that
+with optional, the route without the parameter is also matched `/post` in
+the example above.
+
+#### Caveats
+
+- Predefined routes take precedence over dynamic routes, and dynamic routes
+  over catch all routes. Take a look at the following examples:
+  - `pages/post/create.js` will match `/post/create`.
+  - `pages/post/[pid].js` will match `/post/1`, `/post/abc` but not
+    `/post/create`.
+  - `pages/post/[...slug].js` will match `/post/1/2`, `/post/a/b/c` but not
+    `/post/create` or `/post/abc`.
+- Pages that are statically optimized by Automatic Static Optimization will
+  be hydrated without their route parameters provided, i.e query will be an
+  empty object `{}`. After hydration, NextJS will trigger an update to
+  provide the route parameters in the query object.
+
+## Static File Serving
+
+NextJS will statically serve the contents of the `public` folder in the
+root directory. For example, you can reference `logo.png` in the public
+folder with an absolute path `https://www.domain.com/logo.png` or with a
+relative path `/logo.png`.
+
+```jsx {4} showLineNumbers
+import Image from 'next/image'
+
+const ProfileImage = () => {
+  return <Image src="/me.png" alt="author" />
+}
+
+export default ProfileImage
+```
+
+The path can include subfolders in the `public` folder, like
+`https://www.domain.com/assets/logo.png` or relatively like
+`/assets/logo.png`
+
+Note that relative paths should start from the base URL `/`, i.e. it should
+start with a leading `/` to work.
+
+## The `Link` Component
+
+Client-side transitions between routes can be enabled via the `<Link>`
+component, when linking between pages on websites, you use the `<a>` HTML
+tag. In NextJS, you use the Link component from `next/link` to wrap the
+`<a>` tag.
+
+`<Link>` allows you to do client-side navigation to a different page in the
+application.
+
+```jsx
+<Link href="/">
+  <a>Home</a>
+</Link>
+```
+
+If the child of Link is a custom component that wraps an `<a>` tag, you
+must add `passHref` to the Link component.
+
+```jsx {5-7} showLineNumbers /passHref/2
+import Link from 'next/link'
+import styled from 'styled-components'
+
+// This creates a custom component that wraps an <a> tag
+const RedLink = styled.a`
+  color: red;
+`
+
+function NavLink({ href, name }) {
+  // Must add passHref to Link
+  return (
+    <Link href={href} passHref>
+      <RedLink>{name}</RedLink>
+    </Link>
+  )
+}
+
+export default NavLink
+```
+
+### Custom Styles
+
+You can add your `className` prop to the `<a>` tag instead of the `<Link>`
+
+```jsx /className="styles.button"/
+<Link href="/">
+  <a className="styles.button">Back to home</a>
+</Link>
+```
+
+### With URL Object
+
+Link can also receive a URL object and it will automatically format it to
+create the URL string.
+
+```jsx
+<Link
+  href={{
+    pathname: '/about',
+    query: { name: 'test' }
+  }}
+>
+  <a>About us</a>
+</Link>
+```
+
+This will be mapped to `/about?name=test`
+
+```jsx
+<Link
+  href={{
+    pathname: '/blog/[slug]',
+    query: { slug: 'my-post' }
+  }}
+>
+  <a>Blog Post</a>
+</Link>
+```
+
+This will be mapped to `/blog/my-post`
+
+Instead of using interpolation to create the path, we use a URL object in
+href where:
+
+- `pathname` is the name of the page in the pages directory. `/blog/[slug]`
+  in this case. It describes the path to the file in the pages folder.
+- `query` is an object with the dynamic segment. `slug` in this case.
+
+### Replace the URL Instead of Push
+
+The default behavior of the Link component is to push a new URL into the
+history stack. You can use the `replace` prop to prevent adding a new
+entry, as in the following example:
+
+```jsx /replace/
+<Link href="/about" replace>
+  <a>About us</a>
+</Link>
+```
+
+### Disable scrolling to the top of the page
+
+The default behavior of Link is to scroll to the top of the page. When
+there is a hash defined it will scroll to the specific id, like a normal
+`<a>` tag. To prevent scrolling `scroll={false}` can be added to Link:
+
+```jsx /scroll={false}/
+<Link href="/#id" scroll={false}>
+  <a>Disables scrolling to the top</a>
+</Link>
+```
+
+## Next Router
+
+If you want to access the router object inside any function component in
+your app, you can use the `useRouter()` hook.
+
+```jsx {4} showLineNumbers /router/3-4
+import { useRouter } from 'next/router'
+
+function ActiveLink({ children, href }) {
+  const router = useRouter()
+
+  const style = {
+    marginRight: 10,
+    color: router.asPath === href ? 'red' : 'black'
+  }
+
+  const handleClick = e => {
+    e.preventDefault()
+    router.push(href)
+  }
+
+  return (
+    <a href={href} onClick={handleClick} style={style}>
+      {children}
+    </a>
+  )
+}
+
+export default ActiveLink
+```
+
+### `router.query`
+
+The query parameters are parsed to an object. It defaults to an empty
+object `{}`. It will also be an empty object during pre-rendering if the
+page doesn't have data fetching requirements. This means any possible
+parameter inside of the query object will be `undefined` the first time the
+component is rendered.
+
+### Navigating programmatically
+
+To handle client-side navigation programmatically, we can use `push()` or
+`replace()` method of the `router` object.
+
+### `router.push()`
+
+Handles client-side transitions, this method is useful for cases where
+`next/link` is not enough.
+
+```jsx
+router.push(url, as, options)
+```
+
+### With URL Object
+
+You can use a URL object in the same way you can use it for the Link
+component.
+
+```jsx
+router.push({
+  pathname: '/post/[pid]',
+  query: { pid: post.id }
+})
+```
+
+You don't need to use `router.push()` for external URLs. `window.location`
+is better suited for those cases.
+
+### `router.replace()`
+
+Similar to the replace prop in the Link component, `router.replace()` will
+prevent adding a new URL entry into the history stack.
+
+```jsx
+router.replace(url, as, options)
+```
+
+### `router.reload()`
+
+Reloads the current URL. Equivalent to clicking the browser's refresh
+button. It executes `window.location.reload()`
+
+## Custom `App`
+
+You can override the `App` component, which is where the active page is
+rendered, and do things like:
+
+- Persisting layout between page changes
+- Keeping state when navigating pages
+- Custom error handling using `componentDidCatch`
+- Inject additional data into pages
+- Add global CSS
+
+To do this create the file `./pages/_app.js` as shown below:
+
+```jsx showLineNumbers title="pages/_app.js"
+import '../styles/globals.css'
+
+function MyApp({ Component, pageProps }) {
+  return <Component {...pageProps} />
+}
+
+export default MyApp
+```
+
+- `Component` prop is the active page, whenever the route changes the
+  `Component` will change to the new `page`.
+
+- `pageProps` is the page's initial props if any, or an empty object.
+
+### Custom Layout
+
+We can wrap the `<Component />` with a `Layout` component to persist layout
+between page changes.
+
+```jsx {6-8} showLineNumbers title="pages/_app.js"
+import Layout from '../components'
+import '../styles/globals.css'
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <Layout>
+      <Component {...pageProps} />
+    </Layout>
+  )
+}
+
+export default MyApp
+```
+
+### Custom 404 Page
+
+NextJS provides a static 404 page by default, however, to create a custom
+404 page you can create a `pages/404.js` file. This file is statically
+generated at build time.
+
+```jsx title="pages/404.js"
+export default function Custom404() {
+  return <h1>404 - Page Not Found</h1>
+}
+```
+
+Note: You can use `getStaticProps` inside this page if you need to fetch
+data at build time.
+
+## Page Pre-rendering
+
+As mentioned earlier, in a standard React app, the source file sent to the
+client is an empty HTML page with a `root` element where client-side
+JavaScript (React) mounts our application once loaded.
+
+NextJS however pre-renders the page on the server, fetches the necessary
+data and sends a complete HTML page with content to the client together
+with the necessary JavaScript code. From that point React will take over
+and hydrate the page.
+
+![Server client architecture](/images/notes/learning-nextjs/architecture)
+
+Note that It's just the initial page that is rendered on the server with
+content, subsequent client-side navigation is still handled by
+`next/router` in a single page application manner.
+
+### Two Forms of Pre-rendering
+
+NextJS has two forms of pre-rendering: Static Generation and Server-side
+Rendering. The difference is in when it generates the HTML for a page.
+
+- **Static Site Generation (SSG)**  
+  Pages are generated at build time.
+- **Server-side Rendering (SSR)**  
+  Pages are created on the fly at request time.
+
+By default, NextJS pre-renders every page. This means that NextJS generates
+HTML for each page in advance, instead of having it all done by client-side
+JavaScript.
+
+### Static Site Generation (SSG)
+
+Pages and data are pre-rendered at build time and since pages are generated
+as static files, incoming requests can be served instantly from a CDN that
+is hosting and caching our files.
+
+These static HTML pages are then hydrated with React, so at the end we
+still have a regular React app. The only difference is that the initial
+pages sent to the client are not empty, they are pre-populated with content
+at build time.
+
+We can export the `getStaticProps` function from the page component to
+instruct NextJS to generate a page at build time. This is only for page
+components though, not regular components.
+
+```jsx showLineNumbers title="pages/..."
+const Home = props => {
+  // this is the page component
+}
+
+export async function getStaticProps(context) {
+  // run any server-side code
+  // and return props object
+  return {
+    props: {}
+  }
+}
+```
+
+`getStaticProps` runs on the server and can include any code you'd normally
+run on the server, e.g. connecting to a database, accessing the file system
+etc., this code and any modules used by this code won't be included in the
+bundle sent to the client.
+
+```jsx {11,14} showLineNumbers title="pages/..."
+import fs from 'fs/promises'
+import path from 'path'
+
+// products will be populated at build time by getStaticProps()
+const Home = ({ products }) => {
+  // this is the page component
+}
+
+export async function getStaticProps(context) {
+  // fetch an external API endpoint
+  const res = await fetch('https://.../products')
+  const products = await res.json()
+  // or access the filesystem
+  const data = await fs.readFile('filePath')
+  const { products } = JSON.parse(data)
+  return {
+    props: {
+      products
+    }
+  }
+}
+```
+
+`getStaticProps` function should return an object containing either
+`props`, `redirect`, or `notFound` followed by an optional `revalidate`
+property.
+
+#### `props`
+
+The props object is a key-value pair that'll be passed to the page
+component. It should be a serializable object using `JSON.stringify`.
+
+#### `revalidate`
+
+NextJS allows you to create or update static pages after you've built your
+site by adding `revalidate` prop to `getStaticProps`. The `revalidate`
+property is the amount of seconds after which NextJS will attempt to
+regenerate the page. More on this in the
+[Incremental Static Regeneration](#incremental-static-regeneration-isr)
+section.
+
+#### `notFound`
+
+If set to true, the page will return a 404 page.
+
+```jsx {4} showLineNumbers
+export async function getStaticProps(context) {
+  // code to fetch data ...
+
+  if (!data) return { notFound: true }
+
+  return { props: { data } }
+}
+```
+
+#### `redirect`
+
+Redirects the user to a different page (internal or external).
+
+```jsx {5-8} showLineNumbers
+export async function getStaticProps(context) {
+  // ...
+
+  return {
+    redirect: {
+      destination: '/another-page',
+      permanent: true // or false
+    }
+  }
+}
+```
+
+#### Context Parameter
+
+`getStaticProps` receives a **context** object as an argument which
+contains information about the page such as the route parameters for
+dynamic routes.
+
+#### SSG for Dynamic pages
+
+By default dynamic pages are not generated at build time, instead they are
+server-rendered at request time. However, if we want to generate them at
+build time we need to use `getStaticPaths` together with `getStaticProps`
+to instruct NextJS what pages (paths) we want to generate in advance.
+
+In short, if a dynamic page uses `getStaticProps` it needs to define a list
+of paths to be statically generated with the use of `getStaticPaths`.
+
+For example, for a page that uses dynamic routes named
+`pages/products/[productId].js`, you may use the following `paths`:
+
+```jsx
+export async function getStaticPaths() {
+  return {
+    paths: [
+      { params: { productId: 'p1' } },
+      { params: { productId: 'p2' } }
+    ],
+    fallback: true // false or 'blocking'
+  }
+}
+```
+
+`getStaticPaths` should return an object with the following required
+properties:
+
+- `paths` determines which paths will be pre-rendered. It's an array of
+  objects that explicitly define all URL params.
+- `fallback` is a boolean or the string 'blocking' which determines what
+  should happen for any path that's not returned by `getStaticPaths`.
+
+The value for each `params` object must match the parameters used in the
+page name, `productId` in this example. For catch-all routes like
+`pages/posts/[...slug]`, the `params` object should contain `slug` which is
+an array.
+
+##### `fallback: false`
+
+If fallback is false, then any paths not returned by` getStaticPaths` will
+result in a 404 page. This option is useful if you have a small number of
+paths to create, or new page data is not added often.
+
+##### `fallback: true`
+
+If fallback is true, the paths that have not been generated at build time
+will not result in a 404 page. Instead, NextJS will serve a fallback
+version of the page and builds the requested path in the background. Once
+completed the browser receives the required props to render the page, and
+replaces the fallback with the full page.
+
+Subsequent requests to the same path, however, will be served the generated
+page, like other pages pre-rendered at build time.
+
+`fallback: true` is useful if your app has a large number of pages that
+would take a long time to generate at build time. Instead, you may generate
+a small subset of pages and use `fallback: true` for the rest. This ensures
+the benefits of Static Generation while also preserving fast builds.
+
+##### `fallback: 'blocking'`
+
+If fallback is 'blocking', the paths that have not been generated at build
+time will wait for the `HTML` to be generated identical to sever-side
+rendering. There is no flash of loading/fallback state from the user's
+perspective, the browser transitions from requesting to the full page.
+
+Subsequent requests to the same path, however, will be served the generated
+page, like other pages pre-rendered at build time.
+
+Keep in mind that `fallback: 'blocking'` will not update already generated
+pages. To update generated pages, use Incremental Static Regeneration.
+
+##### Fallback page
+
+In the fallback version of a page:
+
+- The page's props will be empty.
+- Using the router, you can detect if the fallback is being rendered,
+  `router.isFallback` will be true.
+
+```jsx {5-7,15} showLineNumbers
+const Page = ({ post }) => {
+  const router = useRouter()
+
+  // fallback UI
+  if (router.isFallback) {
+    return <div>Loading...</div>
+  }
+
+  // ...
+}
+
+export async function getStaticPaths() {
+  return {
+    paths: [{ params: { id: '1' } }, { params: { id: '2' } }],
+    fallback: true
+  }
+}
+```
+
+### Incremental Static Regeneration (ISR)
+
+Incremental Static Regeneration allows you to create or regenerate a static
+page without needing to rebuild the entire site. This enables you to scale
+while benefiting from static generation.
+
+To use ISR , add `revalidate` to the `getStaticProps` function exported
+from the page. The `revalidate` property is the amount of seconds after
+which NextJS will attempt to regenerate the page when a request comes in.
+
+If your site has a lot of pages or data that changes frequently, instead of
+rebuilding your site anytime something changes you can either:
+
+- Use Incremental Static Regeneration to instruct NextJS to regenerate the
+  page after a certain amount time.
+- Server-render the page at request time to always get the most recent
+  data.
+- Use Static Site Generation to serve the initial page, and fetch updates
+  client-side (the default React way).
+
+```jsx {9} showLineNumbers
+export async function getStaticProps(context) {
+  // code to fetch products ...
+
+  return {
+    props: {
+      products
+    },
+    // NextJS will regenerate the page every 60 secs
+    revalidate: 60 // in seconds
+  }
+}
+```
+
+Adjust the revalidation time depending on how often your data changes.
+
+### Server-Side Rendering (SSR)
+
+If your page contains frequently changing data, and you need to pre-render
+the page, you can export the `getServerSideProps` from the page, which runs
+at request time and NextJS will pre-render your page for every request.
+
+`getServerSideProps` is similar to `getStaticProps` just executed on every
+request. While `getStaticProps` is typically called during the build
+process (except when using ISR for regeneration), `getServerSideProps` is
+called at request time.
+
+`getServerSideProps` also only runs on the server, therefore you can write
+any server-side code for calling a CMS, fetching data from your database,
+or other APIs directly from inside `getServerSideProps`.
+
+`getServerSideProps` should return an object with one of the following
+properties: `props`, `notFound` or `redirect`.
+
+```jsx {7,12} showLineNumbers
+export async function getServerSideProps(context) {
+  const { params, req, res, query } = context
+  const data = await fetch('https://.../data').then(r => r.json())
+
+  if (!data) {
+    return {
+      notFound: true
+    }
+  }
+
+  return {
+    props: { message: `NextJS is awesome` }
+  }
+}
+```
+
+#### Context
+
+The `context` parameter has access to more information such as the request
+and response objects. Some of it's properties include:
+
+- `params` contains the route parameters if the page uses a dynamic route.
+- `req` the `HTTP` request object
+- `res` the `HTTP` response object
+- `query` an object representing the query string
+
+#### Caveat
+
+Since the server needs to pre-render the page on every request, the Time to
+First Bite will be higher compare to `getStaticProps`, you should only use
+`getServerSideProps` if you need to pre-render a page whose data is
+frequently changing.
+
+If you don't need to pre-render the page, you can fetch the data on the
+client side. An example of this is user-specific dashboards where the page
+doesn't need to be pre-rendered as SEO is not relevant and data is
+frequently updated.
+
+#### Server-side Rendering and Dynamic Pages
+
+When server-rendering pages that use dynamic routes, we do not need the
+`getStaticPaths` as we needed for Static Generation.
+
+We can access the value of the dynamic segment via the `params` object on
+the context argument passed to `getServerSideProps`.
+
+```jsx {2} showLineNumbers
+export async function getServerSideProps(context) {
+  const { params } = context
+  const { uid } = params
+  return {
+    props: {
+      userId: `ID: ${uid}`
+    }
+  }
+}
+```
+
+### Client-side Data Fetching
+
+Client-side data fetching is useful when you don't need to pre-render your
+page, for example when your page doesn't require SEO or when the page is
+very dynamic in nature and needs to update frequently like a shopping cart
+page.
+
+It's worth noting that fetching data on the client-side can affect the load
+speed of your pages since it's done after the component or page is mounted.
+
+Here, I'll discuss two options for fetching data client-side:
+
+- Standard React way using `useEffect` and `useState`
+- Using `SWR` React hooks for fetching data
+
+#### Using `useEffect`
+
+This is the standard React way of fetching data with `useEffect` and
+managing the different states involved with `useState`.
+
+```jsx showLineNumbers
+import { useState, useEffect } from 'react'
+
+const Profile = () => {
+  const [data, setData] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    setLoading(true)
+    fetch('api/.../data')
+      .then(res => res.json())
+      .then(data => setData(data))
+      .catch(err => setError(err))
+      .finally(() => setLoading(false))
+  }, [])
+
+  if (loading) return <p>Loading...</p>
+  if (error) return <div>{error.message || 'Something went wrong!'}</div>
+  if (!data) return <p>No profile data</p>
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  )
+}
+```
+
+#### Using `SWR`
+
+React hooks for data fetching, [SWR](https://swr.vercel.app/) was created
+by the team behind NextJS. It handles caching, revalidation, focus
+tracking, re-fetching on intervals, and more.
+
+Using the same example, we can use `SWR` to fetch the profile data. `SWR`
+will automatically cache the data and revalidate it for us.
+
+```jsx {1,6} showLineNumbers
+import useSWR from 'swr'
+
+const fetcher = (...args) => fetch(...args).then(res => res.json())
+
+function Profile() {
+  const { data, error } = useSWR('/api/profile-data', fetcher)
+
+  if (error) return <div>Failed to load</div>
+  if (!data) return <div>Loading...</div>
+
+  return (
+    <div>
+      <h1>{data.name}</h1>
+      <p>{data.bio}</p>
+    </div>
+  )
+}
+```
+
+SWR will first return the data from cache, then sends the fetch request to
+get the most up-to-date data. With `SWR`, components will get a stream of
+data updates constantly and automatically, and the UI will be always fast
+and reactive.
+
+#### Pre-rendering Combined with Client-side Data Fetching
+
+If the page must be pre-rendered, NextJS supports 2 forms of pre-rendering
+as discussed before:
+
+- Static Site Generation (SSG)
+- Server-side Rendering (SSR)
+
+The idea is to pre-render the page with some data either at build time
+(SSG) or at request time (SSR) and then fetch updates on the client side.
+
+You can use the context provider `<SWRConfig />` from the `SWR` to provide
+a fallback (initial value) for all the `useSWR` hooks. This way `useSWR`
+will initially have data to return and then it can revalidate and
+self-update overtime on the client-side.
+
+```jsx {6,20-22,32-34} showLineNumbers
+import useSWR, { SWRConfig } from 'swr'
+
+const Products = () => {
+  const URL = '/api/products'
+  //  data will always be available as it's in 'fallback'
+  const { data } = useSWR(URL, fetcher)
+
+  return (
+    <ul>
+      {data.map(p => (
+        <li key={p.id}>{p.name}</li>
+      ))}
+    </ul>
+  )
+}
+
+const Page = ({ fallback }) => {
+  // SWR hooks inside `SWRConfig` boundary have access to fallback data
+  return (
+    <SWRConfig value={{ fallback }}>
+      <Products />
+    </SWRConfig>
+  )
+}
+
+export async function getStaticProps() {
+  const URL = '/api/products'
+  const data = await fetch(URL).then(res => res.json())
+
+  return {
+    props: {
+      fallback: {
+        [URL]: data
+      }
+    }
+  }
+}
+
+export default Page
+```
+
+The page is still pre-rendered. It's SEO friendly, fast to respond, but
+also fully powered by `SWR` on the client side. The data can be dynamic and
+self-updated over time.
+
+The `<Products />` component will receive the pre-rendered data first, and
+after the page is hydrated, `SWR` will revalidate the data to keep it
+up-to-date.
+
+## The `Head` Component
+
+We can use the `<Head />` component to add elements to the `head` tag of a
+page.
+
+```jsx {7-11} showLineNumbers
+import Head from 'next/head'
+
+const Page = () => {
+  return (
+    <div>
+      <Head>
+        <title>My page title</title>
+        <meta
+          name="viewport"
+          content="initial-scale=1.0,width=device-width"
+        />
+      </Head>
+      <p>Hello world!</p>
+    </div>
+  )
+}
+
+export default Page
+```
+
+To avoid duplicate tags in your head you can use the `key` property, which
+will make sure the tag is only rendered once.
+
+```jsx /key="title"/
+<meta property="og:title" content="My page title" key="title" />
+```
+
+All elements need to be contained as direct children of the `<Head />`
+component, or wrapped into a `<React.Fragment />`.
+
+To share common tags for all your pages, you can add the `<Head />`
+component to the `_app.js` file. These tags would be merged into each
+page's `<Head />` tags. The tags added from `_app.js` will be overwritten
+if there is a similar tag at the page level.
+
+## Custom `Document`
+
+A custom Document is commonly used to augment your application's `<html>`
+and `<body>` tags. Where `_app.js` is your application shell,
+`_document.js` represents the entire `HTML` document. To override the
+default Document, create the file `./pages/_document.js` and extend the
+Document class as shown below:
+
+```jsx showLineNumbers
+import Document, { Html, Head, Main, NextScript } from 'next/document'
+
+class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return { ...initialProps }
+  }
+
+  render() {
+    return (
+      <Html>
+        <Head />
+        <body>
+          <Main />
+          <NextScript />
+        </body>
+      </Html>
+    )
+  }
+}
+
+export default MyDocument
+```
+
+The code above is the default Document added by NextJS. Feel free to remove
+the `getInitialProps` or `render` method if you don't need to change them.
+
+`<Html>`, `<Head />`, `<Main />` and `<NextScript />` are required for the
+page to be properly rendered. Custom attributes are allowed as props, like
+`lang`:
+
+```jsx
+<Html lang="en">
+```
+
+The `<Head />` component used here is not the same one from `next/head`.
+This should only be used for any `<head>` code that is common for all
+pages. For all other cases, such as `<title>` tags, we recommend using
+`next/head` in your pages or components.
+
+The `<Main />` component is where `_app.js` or the page component will be
+rendered. If you want to render a React `portal` into a node that exists
+outside the DOM hierarchy of the application, You can add it here:
+
+```jsx {4} showLineNumbers
+<Html>
+  <Head />
+  <body>
+    <div id="portal" />
+    <Main />
+    <NextScript />
+  </body>
+</Html>
+```
+
+The **ctx** object is equivalent to the one received in `getInitialProps`,
+with one addition:
+
+- `renderPage`: a callback that runs the actual React rendering logic
+  (synchronously). It's useful to decorate this function in order to
+  support server-rendering wrappers.
+
+The only reason you should be customizing `renderPage` is for usage with
+css-in-js libraries that need to wrap the application to properly work with
+server-side rendering.
+
+## The `Image` Component
+
+The `Image` component, is an extension of the HTML `<img>` element, evolved
+for the modern web. It includes a variety of built-in performance
+optimizations such as:
+
+- **Improved Performance**: always serve correctly sized images for each
+  device, using modern image formats.
+- **Visual Stability**: prevent Cumulative Layout Shift automatically.
+- **Faster Page Loads**: images are only loaded when they enter the
+  viewport, with optional blur-up placeholders
+- **Asset Flexibility**: on-demand image resizing, even for images stored
+  on remote servers
+
+To add an image to your application, import the `next/image` component:
+
+```jsx
+import Image from 'next/image'
+```
+
+### Required Props
+
+#### src
+
+Must be one of the following:
+
+- A statically imported image file
+- A path string. This can be either an absolute external URL or an internal
+  path depending on the loader prop or loader configuration.
+
+When using an external URL, you must add it to domains in `next.config.js`.
+
+#### width
+
+The width of the image, in pixels. Must be an integer without a unit.
+Required, except for statically imported images, or those with
+`layout="fill"`.
+
+#### height
+
+The height of the image, in pixels. Must be an integer without a unit.
+Required, except for statically imported images, or those with
+`layout="fill"`.
+
+### Local Images
+
+To use a local image, import your `.jpg`, `.png`, or `.webp` files:
+
+```jsx
+import profilePic from '../public/me.png'
+```
+
+NextJS will automatically determine the width and height of your image
+based on the imported file. These values are used to prevent Cumulative
+Layout Shift while your image is loading.
+
+```jsx showLineNumbers
+import Image from 'next/image'
+import profilePic from '../public/me.png'
+
+const Home = () => {
+  return (
+    <>
+      <Image
+        src={profilePic}
+        alt="Picture of the author"
+        // width={500} automatically provided
+        // height={500} automatically provided
+        // blurDataURL="data:..." automatically provided
+        placeholder="blur" // Optional blur-up while loading
+      />
+    </>
+  )
+}
+
+export default Home
+```
+
+Dynamic await `import` or `require` are not supported. The import must be
+static so it can be analyzed at build time.
+
+### Remote Images
+
+To use a remote image, the `src` property should be a URL string, which can
+be **relative** or **absolute**. Because NextJS does not have access to
+remote files during the build process, you'll need to provide the `width`,
+`height` and optional `blurDataURL` props manually:
+
+```jsx {6,8-9} showLineNumbers
+import Image from 'next/image'
+
+const Home = () => {
+  return (
+    <Image
+      src="/me.png"
+      alt="Picture of the author"
+      width={500}
+      height={500}
+    />
+  )
+}
+
+export default Home
+```
+
+Sometimes you may want to access a remote image but still, use the built-in
+NextJS Image Optimization API. To do this, leave the loader at its default
+setting and enter an **absolute** URL for the image `src`.
+
+```jsx {2} showLineNumbers
+<Image
+  src="https://cdn.example.com/me.png"
+  alt="Picture of the author"
+  width={500}
+  height={500}
+/>
+```
+
+To protect your application from malicious users, you must define a list of
+remote domains that you intend to access this way. This is configured in
+your `next.config.js` file, as shown below:
+
+```jsx {3} showLineNumbers title="next.config.js"
+module.exports = {
+  images: {
+    domains: ['cdn.example.com']
+  }
+}
+```
+
+### Loaders
+
+Note that in the example earlier, a partial URL ("/me.png") is provided for
+a remote image. This is possible because of the `next/image` loader.
+
+A loader is a function that generates the URLs for your image. It appends a
+root domain to your provided src and generates multiple URLs to request the
+image at different sizes. These multiple URLs are used in the automatic
+`srcset` generation so that visitors to your site will be served an image
+that is the right size for their viewport.
+
+The default loader for NextJS applications uses the built-in Image
+Optimization API, which optimizes images from anywhere on the web, and then
+serves them directly from the NextJS web server. If you would like to serve
+your images directly from a CDN or image server, you can use one of the
+built-in loaders or write your own with a few lines of JavaScript.
+
+```jsx {3-5,10} showLineNumbers
+import Image from 'next/image'
+
+const myLoader = ({ src, width, quality }) => {
+  return `https://example.com/${src}?w=${width}&q=${quality || 75}`
+}
+
+const MyImage = props => {
+  return (
+    <Image
+      loader={myLoader}
+      src="me.png"
+      alt="Picture of the author"
+      width={500}
+      height={500}
+    />
+  )
+}
+
+export default MyImage
+```
+
+Loaders can be defined per image, or at the application level. Setting the
+loader as a prop on the Image component overrides the default loader
+defined in the images section of `next.config.js`.
+
+#### Built-in Loaders
+
+The following Image Optimization cloud providers are included:
+
+- **Default**: works automatically with `next dev`, `next start`, or a
+  custom server
+- **Vercel**: works automatically when you deploy on
+  [Vercel](https://vercel.com/)
+- **Imgix**: `loader: 'imgix'`
+- **Cloudinary**: `loader: 'cloudinary'`
+- **Akamai**: `loader: 'akamai'`
+- **Custom**: `loader: 'custom'` use a custom cloud provider by
+  implementing the loader prop on the `next/image` component
+
+```jsx {3-4} showLineNumbers title="next.config.js"
+module.exports = {
+  images: {
+    loader: 'cloudinary',
+    path: 'https://res.cloudinary.com/myaccount'
+  }
+}
+```
+
+This loader will generate the URLs for your image. It appends the root
+domain specified in the `path` to the partial URL provided in the `src` in
+the Image component and generates multiple URLs to request the image at
+different sizes. example:
+
+```mdx
+https://res.cloudinary.com/myaccount/f_auto,c_cover,w_500/me.png
+```
+
+The default loader uses [squoosh](https://squoosh.app/) because it is quick
+to install and suitable for a development environment. When using
+`next start` in your production environment, it is strongly recommended
+that you install [sharp](https://github.com/lovell/sharp) by running
+`yarn add sharp` in your project directory. This is not necessary for
+Vercel deployments, as sharp is installed automatically.
+
+### Image Sizing
+
+Because the `next/image` is designed to guarantee good performance results,
+it cannot be used in a way that will contribute to layout shift, and must
+be sized in one of three ways:
+
+- **Automatically**, using a static import
+- **Explicitly**, by including a `width` and `height` property
+- **Implicitly**, by using `layout="fill"` which causes the image to expand
+  to fill its parent element.
+
+### Optional Image props
+
+#### layout
+
+The layout prop defines the behavior of the image as the viewport changes
+size. It can be one of the following four values:
+
+- **intrinsic**: this is the default value, it makes the image scale down
+  to fit the width of the container, but does not scale up beyond the
+  original image dimensions.
+
+- **responsive**: scales up or down to fit the container width. Ensure the
+  parent container uses `display: block`
+
+- **fill**: grows in both width and height to fill the container. It will
+  stretch both width and height to the dimensions of the parent element.
+  This is usually paired with `objectFit` property to avoid distorting the
+  image while stretching. Ensure the parent element uses
+  `position: relative`
+
+- **fixed**: the image dimensions will not change as the viewport changes
+  (no responsiveness) similar to the native `<img />` element.
+
+#### sizes
+
+A string that provides information about how wide the image will be at
+different breakpoints. Defaults to `100vw` when using `layout="responsive"`
+or` layout="fill"`.
+
+If you are using `layout="fill"` or `layout="responsive",` it's important
+to assign sizes for any image that takes up less than the full viewport
+width.
+
+For example, when the parent element will constrain the image to always be
+less than half the viewport width, use `sizes="50vw"`. Without sizes, the
+image will be sent at twice the necessary resolution, decreasing
+performance.
+
+If you are using `layout="intrinsic"` or `layout="fixed"`, then `sizes` is
+not needed because the upper bound width is constrained already.
+
+#### quality
+
+The quality of the optimized image, it's an integer between 1 and 100 where
+100 is the best quality. Defaults to 75.
+
+#### priority
+
+When true, the image will be considered high priority and preload. Lazy
+loading is automatically disabled for images using `priority`.
+
+```jsx {6} showLineNumbers
+<Image
+  src="/me.png"
+  alt="Picture of the author"
+  width={500}
+  height={500}
+  priority
+/>
+```
+
+You should use the priority property on any image detected as the Largest
+Contentful Paint (LCP) element. Should only be used when the image is
+visible above the fold. Defaults to `false`.
+
+#### placeholder
+
+A placeholder to use while the image is loading. Possible values are "blur"
+or "empty". Defaults to "empty".
+
+When "blur", the `blurDataURL` property will be used as the placeholder. If
+`src` is an object from a static import and the imported image is `.jpg`,
+`.png`, `.webp`, or `.avif`, then `blurDataURL` will be automatically
+populated.
+
+For dynamic images, you must provide the `blurDataURL` property.
+
+When "empty", there will be no placeholder while the image is loading, only
+empty space.
+
+#### blurDataURL
+
+A Data URL to be used as a placeholder image before the image successfully
+loads. Only takes effect when combined with `placeholder="blur"`.
+
+Must be a **base64-encoded** image. It will be enlarged and blurred, so a
+very small image (10px or less) is recommended. Including larger images as
+placeholders may harm your application performance.
+
+#### objectFit
+
+Defines how the image will fit into its parent container when using
+`layout="fill"`. This value is passed to the `object-fit` CSS property for
+the src image.
+
+#### objectPosition
+
+Defines how the image is positioned within its parent element when using
+`layout="fill"`. This value is passed to the `object-position` CSS property
+applied to the image.
+
+### Styling Image component
+
+Styling the `Image` component is not that different from styling a normal
+`<img />` element, but there are a few guidelines to keep in mind:
+
+- Pick the correct `layout` mode
+- Target the image with classes, not based on DOM structure. The
+  recommended way to style the inner `<img />` is to set the `className`
+  prop on the `Image` component.
+- You cannot use the `style` prop because the `Image` component does not
+  pass it through to the underlying `img`.
+- When using `layout="fill"`, the parent element must have
+  `position: relative`
+- When using `layout="responsive"`, the parent element must have
+  `display: block`
+
+## API Routes
+
+Any file inside the folder `pages/api` is mapped to `/api/*` and will be
+treated as an API endpoint instead of a page. They are server-side only
+bundles and won't increase your client-side bundle size. This allows you to
+build your API layer within your NextJS application.
+
+For example, the following API route `pages/api/user.js` returns a `json`
+response with a status code of 200:
+
+```jsx
+export default function handler(req, res) {
+  res.status(200).json({ name: 'John Doe' })
+}
+```
+
+For an API route to work, you need to export a function as default (a.k.a
+request handler), which then receives the following parameters:
+
+- **req**: an instance of `http.IncomingMessage`, plus some built-in
+  middlewares
+- **res**: an instance of `http.ServerResponse`, plus some helper functions
+
+To handle different `HTTP` methods in an API route, you can use
+`req.method` in your request handler, like so:
+
+```jsx
+export default function handler(req, res) {
+  if (req.method === 'POST') {
+    // Process a POST request
+  } else {
+    // Handle any other HTTP method
+  }
+}
+```
+
+### Use Cases
+
+You can build your entire API with API Routes If you don't have an existing
+API. Other use cases for API routes are:
+
+- Masking the URL of an external service
+- Using Environment Variables on the server to securely access external
+  services.
+
+### Dynamic API Routes
+
+API routes support dynamic routes and follow the same file naming rules
+used for pages. For example, the API route `pages/api/post/[pid].js` has
+the following code:
+
+```jsx
+export default function handler(req, res) {
+  const { pid } = req.query
+  res.end(`Post: ${pid}`)
+}
+```
+
+Now, a request to `/api/post/abc` will respond with the text: `Post: abc`.
+
+#### Index routes and Dynamic API routes
+
+A very common RESTful pattern is to set up routes like this:
+
+`GET api/posts` - gets a list of posts, probably paginated  
+`GET api/posts/p1` - gets post with the id of `p1`
+
+We can model this in two ways:
+
+Option 1:
+
+```mdx
+/api/posts.js  
+/api/posts/[postId].js
+```
+
+Option 2:
+
+```mdx
+/api/posts/index.js  
+/api/posts/[postId].js
+```
+
+Both are equivalent. A third option of only using `/api/posts/[postId].js`
+is not valid because dynamic routes do not have an `undefined` state and
+`GET api/posts` will not match `/api/posts/[postId].js` under any
+circumstances.
+
+### Catch-all API Routes
+
+API Routes can be extended to catch all paths by adding three dots (...)
+inside the brackets. For example:
+
+`pages/api/post/[...slug].js` matches `/api/post/a`, but also
+`/api/post/a/b`, `/api/post/a/b/c` and so on. Note: You can use names other
+than slug, such as: `[...param]`
+
+Matched parameters will be sent as a query parameter (`slug` in this
+example) to the page, and it will always be an array, so, the path
+`/api/post/a` will have the following query object:
+
+```jsx
+// the req.query object
+{
+  slug: ['a']
+}
+```
+
+And in the case of `/api/post/a/b`, and any other matching path, new
+parameters will be added to the array, like so:
+
+```jsx
+// the req.query object
+{
+  slug: ['a', 'b']
+}
+```
+
+### Optional Catch-all API Routes
+
+Catch-all routes can be made optional by including the parameter in double
+brackets `[[...slug]]`. For example, `pages/api/posts/[[...slug]].js` will
+match `/api/posts`, `/api/posts/a`, `/api/posts/a/b`, and so on.
+
+The main difference between catch-all and optional catch-all routes is that
+with optional, the route without the parameter is also matched `/api/posts`
+in this example.
+
+The query object for `/api/posts` will be an empty object `{}`.
+
+### Caveats
+
+- Predefined API routes take precedence over dynamic API routes, and
+  dynamic API routes over catch-all API routes. Take a look at the
+  following examples:
+- `pages/api/post/create.js` - will match `/api/post/create`
+- `pages/api/post/[pid].js` - will match `/api/post/1`, `/api/post/abc`,
+  etc. But not `/api/post/create`
+- `pages/api/post/[...slug].js` - will match `/api/post/1/2`,
+  `/api/post/a/b/c`, etc. But not `/api/post/create`, `/api/post/abc`
+
+## Recap
+
+That's it folks, we went over everything you need to know about NextJS to
+start building production ready React applications. Some of the examples
+and explanations used here, where directly from
+[NextJS documentation](https://nextjs.org/docs/getting-started), I strongly
+recommend checking it out.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Documentation
+
+- [NextJS Docs](https://nextjs.org/docs/getting-started)
+
+#### Tutorials
+
+- [NextJS Interactive Learning Tutorial](https://nextjs.org/learn/foundations/about-nextjs)
+  by NextJS
+- [Mastering NextJS](https://masteringnextjs.com/) by
+  [Lee Rob](https://twitter.com/leeerob)

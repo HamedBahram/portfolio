@@ -1,4 +1,4 @@
-import ViewCounter from '../ui/ViewCounter'
+import ViewCounter from '../utils/ViewCounter'
 import Avatar from '../utils/Avatar'
 import DateFormatter from '../utils/DateFormatter'
 

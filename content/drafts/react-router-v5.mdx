@@ -1,0 +1,323 @@
+---
+title: React Router V5
+excerpt: Implementing client-side routing with React-Router
+coverImage: /images/notes/react-router-v5/cover.png
+ogImage: /images/notes/react-router-v5/cover.png
+tags:
+  - ReactJS
+  - React Router
+  - Client-side Routing
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-02-10'
+---
+
+**What is a router and why do we need one?**
+
+In a traditional multi-page app with a server-side routing, we would
+typically build different HTML pages and store them on the server or
+dynamically generate those HTML pages upon request and send them back to
+the client, which is then rendered by the browser.
+
+This means that every time the URL changes, the browser sends a request to
+the server to fetch the corresponding resource - an HTML file, and
+re-renders the page. This also wipes out any internal state we managed on
+the previous page, which defies the purpose of using a client-side library
+like React which is built upon the idea of the state. In React, the UI is a
+function of the state.
+
+To prevent sending a request to the server whenever the URL changes, we
+need to handle the routing on the client-side so we can preserve our
+application state while also routing the client to the correct “page”
+(content) on our site. And that's why you need a router for your React app,
+to perform client-side routing.
+
+Though, It is important to understand that client-side routing is happening
+all in the browser, we still need the server to send the initial HTML and
+Javascript files.
+
+Therefore our server should be configured to just send the index.html file
+and all the necessary assets (such as client-side JavaScript and CSS) for
+_all_ requests. And once the React and react-router are loaded on the
+client side react-router can look at the path and render the correct page
+and components.
+
+**React Router**
+
+Manages the URL state, listens for changes to that state and renders
+different components based on that state. It also prevents links to send a
+request to the server for a new HTML file and instead changes the URL
+without reloading the page with the use of the browser History API.
+
+**React Router V5**
+
+The first step is to wrap our App component with the BrowserRouter
+component provided by React-Router allowing it to control the routing in
+our app.
+
+**<Route />**
+
+To define routes we can use the `<Route />` component. This component
+requires a “path” prop that determines what URL this route should match,
+once matched it would render the component we pass to is as a child.
+
+```jsx
+<Route path="/">
+  <Home />
+</Route>
+```
+
+This matches any URL that starts with “/”, like “/about”, if we want to
+only match the exact path “/”, we can pass the exact prop.
+
+```jsx
+<Route path="/" exact>
+  <Home />
+</Route>
+```
+
+**<Link />**
+
+Instead of using regular anchor tags `<a>` for links, we should use the
+Link component from react-router, which prevents the default browser
+behavior to send a request when and anchor tag is clicked.
+
+In the Link component instead of the “href” attribute, we can specify the
+destination with the “to” prop.
+
+```jsx
+<Link to="/">Home</Link>
+```
+
+The Link component internally renders an anchor tag, so you can pass any
+classes you want with the use of the “className” prop to style your links.
+
+```jsx
+<Link to="/" className="link">
+  Home
+</Link>
+
+// this would result in => <a href=”/” class=”link”>Home</a>
+```
+
+**<NavLink />**
+
+To highlight the active link in the navigation links which represent the
+current page we are on, we can use the NavLink component. It works the same
+as the `<Link />` component but in addition, it can set a CSS class on the
+anchor tag. We just need to tell NavLink which class to add and we do this
+by activeClassName prop.
+
+```jsx
+<NavLink to="/" activeClassName="active">
+  Home
+</NavLink>
+```
+
+**Dynamic Routes**
+
+```jsx
+<Route path="/users" exact>
+    <UsersList />
+</Route>
+<Route path="/users/:userId">
+    <UserDetail />
+</Route>
+```
+
+We can access the userId with the use of `userParams()` hook inside of the
+UserDetail component:
+
+```jsx
+const params = useParams()
+// params will be an object => { userId: 'u123' }
+```
+
+**<Switch />**
+
+By default, react-router will match all the routes that match therefore
+rendering all corresponding components alongside each other, and sometimes
+that is the desired outcome, but if we only want to match one route and
+render one component we can use the Switch component which stops when the
+first route is matched. To use Switch you just need to wrap your Route
+components with a Switch component.
+
+```jsx
+<Switch>
+  <Route path="/users" exact>
+    <UsersList />
+  </Route>
+  <Route path="/users/:userId">
+    <UserDetail />
+  </Route>
+</Switch>
+```
+
+React-router will go through your routes from top to bottom in order, and
+when it finds a match it renders the child component and stops there. That
+is why it is important to pass the “exact” prop in the previous example,
+otherwise, the “/users” path will always match and we will never reach the
+“/users/:userId” path. Alternatively, we could have changed the order of
+the routes for the “/users/:userId” to come before “/users”.
+
+**Nested Routes**
+
+You could also add nested Routes in the components renders from your
+top-level route components. For example, in the UsersList component, we can
+add a nested route:
+
+```jsx
+const UserDetail = () => {
+  return (
+    <section>
+      <h1>The User Detail Page</h1>. . .
+      <Route path="/users/new">
+        <NewUserForm />
+      </Route>
+    </section>
+  )
+}
+```
+
+**<Redirect />**
+
+To redirect the user we can use the Redirect component, which redirects the
+user to the specified path in the “path” prop:
+
+```jsx
+<Switch>
+  <Route exact path="/">
+    <Redirect to="/welcome" />
+  </Route>
+  <Route path="/welcome">
+    <Welcome />
+  </Route>
+</Switch>
+```
+
+Again notice the “exact” prop to avoid matching literally all URLs since
+they all begin with “/”.
+
+**Catch-All Route**
+
+We can have a catch-all page that returns a fallback page like a 404 page
+if the user goes to a URL that does not exist in our routes. We do this by
+adding a catch-all `*` route to the end of our routes.
+
+```jsx
+<Switch>
+  <Route exact path="/">
+    <Home />
+  </Route>
+  <Route path="/users">
+    <UsersList />
+  </Route>
+  <Route path="*">
+    <NotFoundPage />
+  </Route>
+</Switch>
+```
+
+**useHistory()**
+
+Using this hook to programmatically navigate the user to a different page,
+for example upon form submission, or to just update the URL by
+adding/editing the query strings, which stays on the same page but
+re-renders the component reflecting the new URL state.
+
+```jsx
+const history = useHistory()
+history.push('/')
+history.replace('/')
+```
+
+Or just change or add query strings:
+
+```jsx
+history.replace('/products?sort=asc')
+```
+
+`replace()` is like redirect, the user cannot go back to the previous page
+because we replaced the location. where `push()` would add a new entry in
+the history stack and the user can navigate back to the original page when
+the location changes either by pushing or replacing the router matches the
+path and renders the corresponding page and components even if we push the
+current page, it will re-render the current page
+
+**useLocation()**
+
+Using this hook gives you a location object to read different parts of the
+URL.
+
+```jsx
+const location = useLocation()
+const query = new URLSearchParams(location.search)
+// location object will look like this:
+{
+  hash: "",
+  key: "bpetwt",
+  pathname: "/quotes",
+  search: "?sort=price",
+  state: undefined
+}
+```
+
+**useRouteMatch()**
+
+Using this hook gives you an object that contains information about the
+matched route, such as its path, URL and whether or not it was an exact
+match.
+
+```jsx
+const match = useRouteMatch()
+// match object will look like this:
+{
+  isExact: true
+  params: {
+    quoteId: 'q1'
+  }
+  path: '/quotes/:quoteId'
+  url: '/quotes/q1'
+}
+```
+
+**Note**
+
+If you want to check if the current URL contains a specific path, you can
+use the functionality already provided the react-router components like
+`<Route>` to match your desired route and perform what you intended to.
+
+React-router is managing a state for use, and that is the location (URL)
+state, we can read it, update it and when so react-router will re-render
+our components.
+
+You can use nested routes to conditionally render different content based
+on the URL, without having to manage any extra state. React-router is
+already managing the URL or location state for you.
+
+```jsx
+const match = useRouteMatch()
+
+{
+  match.isExact && (
+    <div className="centered">
+      <Link to={`${match.url}/comments`} className="btn--flat">
+        Show comments
+      </Link>
+    </div>
+  )
+}
+```
+
+You can even use the `<Route>` component to match that:
+
+```jsx
+<Route path={match.path} exact>
+  <div className="centered">
+    <Link to={`${match.url}/comments`} className="btn--flat">
+      Show comments
+    </Link>
+  </div>
+</Route>
+```

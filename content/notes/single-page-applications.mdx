@@ -1,0 +1,204 @@
+---
+title: Single Page Applications
+excerpt:
+  What is a single page application and how it's different from traditional
+  apps
+coverImage: /images/notes/single-page-applications/cover.png
+ogImage: /images/notes/single-page-applications/cover.png
+tags:
+  - ReactJS
+  - React Router
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-02-01'
+---
+
+A single page application (SPA) re-renders its content in response to
+navigation actions such as clicking a link, without making a request to the
+server and reloading the page.
+
+## How Does It Work?
+
+In order to understand how single-page applications work, we first need to
+understand the default browser behavior and it's native APIs.
+
+### How Do Browsers Handle Navigation?
+
+When you click a link, the browser changes the URL and triggers a request
+to the endpoint specified in the link's `href` attribute.
+
+The browser then receives the response and creates the DOM, which is a
+document representing the page content. Each browser tab maintains a
+session history, which is an array of location entries, containing
+information about the location such its URL, state and the associated
+document.
+
+As you're navigating through different pages, the browser is building up a
+session history. Each navigation makes a request to the server and creates
+a new entry.
+
+That is how navigation is handled by the browser, but we need to prevent
+this default behavior for a single-page application to avoid requests
+hitting the server on every navigation action.
+
+How do SPAs prevent this default behavior?
+
+### Location's hash `#`
+
+Early single-page applications relied on the fact that you can change the
+URL's hash segment without triggering the browser to send a request to the
+server.
+
+```mdx
+Home page:  
+https://example.com/
+
+About page:  
+https://example.com/#/about
+```
+
+Now that we've prevented the browser from sending a request to the server
+by changing the location's hash, we need to trigger a re-render and show
+the correct content corresponding to the newly added hash (`#/about` in the
+example).
+
+For that, single-page applications generally rely on a router. Routers are
+made up of routes, which describe the location they should match. These
+locations can be static paths like `/about` or dynamic paths like
+`/products/:id`.
+
+After matching a route, the router will trigger a re-render of the
+application to render the corresponding component, giving the user the
+impression of navigating to a different page.
+
+While this worked, having to handle our routes using a hash string wasn't
+ideal, until the `History API` was developed to add first-class support for
+single-page applications.
+
+### History API
+
+The history object provides access to the browser's session history. It
+exposes useful methods and properties that let you navigate back and forth
+through the user's history, and manipulate the contents of the history
+stack.
+
+#### Properties
+
+- **length (read-only)**: returns an Integer representing the number of
+  elements in the session history, including the currently loaded page.
+
+- **scrollRestoration**: allows setting default scroll restoration behavior
+  on history navigation. This property can be either `auto` or `manual`.
+
+- **state (read-only)**: returns a value representing the state at the top
+  of the history stack (the current entry). This is a way to look at the
+  state without having to wait for a `popstate` event. The value is
+  initially `null` until the `pushState` or `replaceState` methods are
+  used.
+
+#### Methods
+
+- **back()**: this asynchronous method goes to the previous page in the
+  session history, the same action as when the user clicks the browser's
+  Back button. Equivalent to `history.go(-1)`
+
+- **forward()**: this asynchronous method goes to the next page in the
+  session history, the same action as when the user clicks the browser's
+  Forward button; this is equivalent to `history.go(1)`
+
+- **go()**: asynchronously loads a page from the session history,
+  identified by its relative location to the current page, for example, -1
+  for the previous page or 1 for the next page. Calling `go()` without
+  parameters or a value of 0 reloads the current page.
+
+- **pushState(state, title, url)**: creates a new entry in the history
+  stack using the _current document_ together with the specified state,
+  title and if provided, URL.
+
+- **replaceState(state, title, url)**: updates the most recent entry on the
+  history stack to have the specified state, title and if provided, URL.
+
+##### Changing the State
+
+`pushState` and `replaceState` methods have the same signature:
+
+- **state**: the state object is a JavaScript object which is associated
+  with the entry. If you do not want to pass any state, pass `null`.
+
+- **title**: or recently named `unused` exists for historical reasons and
+  most browsers ignore this parameter. Passing an empty string here should
+  be safe against future changes to the method.
+
+- **url [optional]**: the new entry's URL is given by this parameter.
+  **_Note that the browser won't attempt to load this URL after a call to
+  `pushState` or `replaceState`_**. The new URL does not need to be
+  absolute and if it's relative, it's resolved relative to the current URL.
+  The new URL must be of the same origin as the current URL or it will
+  throw an exception. If this parameter isn't specified, it's set to the
+  document's current URL.
+
+**Navigating in SPAs using the History API**
+
+As explained above, we can use `history.pushState` or
+`history.replaceState` to change the URL without sending a request to the
+server. All that's left now, is to prevent the default browser behavior
+when a link is clicked, which can be accomplished by adding an event
+listener and using `event.preventDefault`.
+
+A simple implementation could look like this:
+
+```jsx {5,6} showLineNumbers
+const Link = ({ children, href }) => (
+  <a
+    href={href}
+    onClick={event => {
+      event.preventDefault()
+      history.pushState(null, '', href)
+    }}
+  >
+    {children}
+  </a>
+)
+```
+
+Now that we've changed the URL and prevented the browser from sending a
+request, all we need to do is to trigger a re-render of our application and
+show the relevant components matching the new URL. This is typically
+handled by the router module.
+
+Fortunately router modules like [React-Router](https://reactrouter.com/)
+merge all of these necessary steps and behaviors into custom components,
+hooks and APIs that can be used to handle client-side routing, freeing us
+from having to implement this from scratch.
+
+<!-- If you like to learn how React-Router works, you can read
+[this note](/react-router-v5), where I summarize all you need to know about
+React-Router. -->
+
+## Recap
+
+That's it folks, we covered what a single-page application is, how it
+handles client-side routing and how it differs from traditional
+applications.
+
+Next would be to understand how to serve single-page applications that use
+client-side routing. Things like static vs dynamic servers, static site
+generators, server-side route configuration and more. You can check the
+following note for further reading:
+
+<BackgroundReading
+  href="/notes/serving-single-page-applications"
+  title="Further reading:"
+>
+  Serving Single Page Applications
+</BackgroundReading>
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Documentation
+
+- [History API](https://developer.mozilla.org/en-US/docs/Web/API/History_API)
+- [Client-side routing main concepts](https://reactrouter.com/docs/en/v6/getting-started/concepts)

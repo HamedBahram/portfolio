@@ -24,6 +24,18 @@ html {
   @apply decoration-react-link underline-offset-4;
 }
 
+.prose ul li {
+  padding-left: 1rem;
+}
+
+.prose ul li::marker {
+  @apply font-medium text-react-link content-['–'] dark:text-sky-600;
+}
+
+.prose ul li > ul li::marker {
+  @apply font-bold text-fuchsia-400 content-['•'] dark:text-fuchsia-400;
+}
+
 /* Syntax Highlighting */
 
 pre {
@@ -46,11 +58,15 @@ pre::-webkit-scrollbar-thumb {
 }
 
 pre > code {
-  @apply !grid !py-4 !font-mono !text-sm;
+  @apply !grid !py-4 !font-mono !text-sm !leading-normal;
 }
 
 :not(pre) > code {
-  @apply !px-1 !font-mono text-sm !tracking-widest !text-react-link dark:!text-sky-600;
+  @apply !px-0 !font-mono text-sm !font-normal !tracking-widest !text-react-link dark:!text-sky-600;
+}
+
+:not(pre) :is(h1, h2, h3, h4, h5, h6) code {
+  @apply !font-bold;
 }
 
 code {
@@ -79,7 +95,7 @@ div[data-rehype-pretty-code-title] + pre {
 }
 
 div[data-rehype-pretty-code-title] {
-  @apply !mt-6 !max-w-max !rounded-t !bg-[#2b303b] !px-4 !py-0.5 !text-[#676e95] dark:!border-b dark:!border-b-slate-400 dark:!bg-[#282c34];
+  @apply !mt-6 !max-w-max !rounded-t !border-b !border-b-slate-400 !bg-[#2b303b] !px-4 !py-0.5 !text-[#676e95] dark:!bg-[#282c34];
 }
 
 .line {

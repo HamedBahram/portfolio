@@ -1,0 +1,122 @@
+---
+title: Serving Single-page Applications
+excerpt: Serving apps with client-Side routing
+coverImage: /images/notes/serving-single-page-applications/cover.png
+ogImage: /images/notes/serving-single-page-applications/cover.png
+tags:
+  - ReactJS
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-02-05'
+---
+
+Single-page applications are distinguished from regular applications
+because they do not need to make server requests when the user navigates.
+they control navigation and reuse the active document instead of sending a
+request to the server. However, the application still needs a server to
+provide the initial files for the application to render.
+
+<BackgroundReading
+  href="/notes/single-page-applications"
+  title="Background reading:"
+>
+  Single Page Applications
+</BackgroundReading>
+
+There are two main ways we can serve a single-page application:
+
+- Static server
+- Dynamic server
+
+## Static server
+
+A static web server consists of a computer (hardware) with an HTTP server
+(software). We call it "static" because the server sends its hosted files
+as-is to your browser. This means a static web server can only successfully
+respond to requests if a resource at the requested location exists.
+
+With a static server, a request for `/about.html` only succeeds if the
+`about.html` file exists on the server. If the server doesn't find the
+requested document, it returns a 404 response instead.
+
+However, some static hosts allow you to respond with an alternative file
+(fallback) if the requested resource doesn’t actually exist on the server.
+So if a request for the `/about.html` file comes in and the server has no
+`about.html` file, it will respond with an `index.html` file instead.
+
+## Dynamic server
+
+A dynamic web server consists of a static web server plus extra software,
+most commonly known as an _application server_ and a _database_. We call it
+"dynamic" because the application server generates the files upon request
+before sending them to your browser via the HTTP server.
+
+For example, to produce the final web pages you see in the browser, the
+application server might fill an HTML template with content from a
+database. Sites like MDN or Wikipedia have thousands of web pages.
+Typically, these kinds of sites are composed of only a few HTML templates
+and a giant database, rather than thousands of static HTML files. This
+setup makes it easier to maintain and deliver the content.
+
+A dynamic server is able to match requests and dynamically generate
+responses. This way the requests don't have to map directly to files on the
+server.
+
+## Serving SPA with a Static Server
+
+If you are running a single page application through a static server, you
+have three options, the first of which is how it used to be done (before
+the advent of the browser History API)
+
+- The old way was to have a single HTML file and use the URL's hash for
+  location data.
+
+  ```mdx
+  Home page:  
+  https://example.com/
+
+  About page:  
+  https://example.com/#/about
+  ```
+
+  Since the location is represented in the URL's hash, and the server only
+  uses the location's path to map resources, all requests to the server
+  would be routed to the `index.html` file.
+
+- Configure the server to send the `index.html` file for all requests
+- The alternative approach is to generate static HTML files for each page
+  in the application. There are tools like static site generators that can
+  assist you in doing so, examples would be NextJS.
+
+## Serving SPA with a Dynamic Server
+
+A dynamic server not only fulfills requests for static resources but also
+extends the capabilities of a static server to employ server-side rendering
+(generate HTML files at request time) and also respond to API calls. A
+dynamic server can also respond with a common HTML file from the disk for
+all other requests.
+
+```js
+// match static files requests
+app.use('/static', express.static('public'))
+
+// match API requests
+app.use('/api', api_router)
+
+// match everything else
+app.use('*', function (req, res) {
+  res.sendFile('/public/index.html')
+})
+```
+
+## Recap
+
+If you are using a static file host, you will either need to configure the
+server to send the `index.html` file for all requests or generate an HTML
+file for every possible route in your application at build time using tools
+like NextJS.
+
+Dynamic servers make serving single-page applications easy by using
+catch-all routes to respond to requests for any location with `index.html`
+while also handling static resources and API calls.

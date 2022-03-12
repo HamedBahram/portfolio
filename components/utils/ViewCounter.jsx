@@ -16,15 +16,23 @@ const ViewCounter = ({ slug, className = '' }) => {
     if (!slug) return
 
     const registerView = async () => {
-      const { viewCount } = await fetch(`/api/views/${slug}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      }).then(res => res.json())
+      if (process.env.NODE_ENV !== 'production') {
+        return
+      }
 
-      if (viewCount) {
-        setViews(viewCount)
+      try {
+        const { viewCount } = await fetch(`/api/views/${slug}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }).then(res => res.json())
+
+        if (viewCount) {
+          setViews(viewCount)
+        }
+      } catch (error) {
+        return
       }
     }
 

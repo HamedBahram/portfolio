@@ -17,7 +17,7 @@ const Subscribe = () => {
   const { canvasRef, confetti } = useConfetti()
   const { width, height, ref } = useRectSize()
 
-  const [fade, setFade] = useState('h-52 sm:h-44')
+  const [fade, setFade] = useState('h-56 sm:h-48')
 
   useEffect(() => {
     if (subscribed) {
@@ -67,7 +67,7 @@ const Subscribe = () => {
 
       form.reset()
     } catch (error) {
-      setFade('h-56 sm:h-48')
+      setFade('h-60 sm:h-52')
       setError(error)
       setLoading(false)
     }
@@ -76,7 +76,7 @@ const Subscribe = () => {
   return (
     <div
       ref={ref}
-      className={`${fade} relative rounded-md bg-gradient-to-br from-react to-react-link p-8 transition-height duration-500`}
+      className={`${fade} relative rounded-md bg-gradient-to-br from-react to-react-link px-8 py-9 transition-height duration-500 sm:px-9`}
     >
       <div className="mb-5 text-white">
         {subscribed ? (
