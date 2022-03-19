@@ -1,0 +1,158 @@
+---
+title: Deploying NextJS Apps
+excerpt: How to deploy your NextJS application to production
+coverImage: /images/notes/deploying-nextjs-apps/cover.png
+ogImage: /images/notes/deploying-nextjs-apps/cover.png
+tags:
+  - NextJS
+  - Production
+  - Deployment
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-03-18'
+---
+
+Generally speaking when it comes to deploying your NextJS application to
+production, you have two options:
+
+- **Static HTML export**: not all NextJS features are supported.
+- **Standard build API**: supports all NextJS features (requires a NodeJs
+  server).
+
+## Static HTML export
+
+Allows you to export your NextJS app to static files (HTML, CSS,
+JavaScript, etc.), and does not require a NodeJs server to run.
+
+Static export would be a good fit, if you're only using NextJS as a static
+site generator and you don't need any of the following features that
+require a server:
+
+- Image Optimization with the _default loader_
+- Internationalized Routing
+- API Routes
+- Rewrites
+- Redirects
+- Headers
+- Middleware
+- Incremental Static Regeneration
+- `fallback: true`
+- `getServerSideProps`
+
+to do this you can update your build script to use `next export`
+
+```json title="package.json"
+"scripts": {
+  "build": "next build && next export"
+}
+```
+
+Running `npm run build` will generate an `out` directory which is the
+static version of your app built by `next export` that you can deploy to
+any static host.
+
+### Supported Features
+
+Static export still supports most of NextJS features required to build a
+static site, including:
+
+- Dynamic routes using `getStaticPaths`
+- Prefetching with `next/link`
+- Preloading JavaScript
+- Dynamic Imports
+- Any styling options (e.g. CSS Modules, styled-jsx)
+- Client-side data fetching
+- `getStaticProps`
+- `getStaticPaths`
+- Image Optimization using a custom loader
+
+## Standard Build API
+
+If you want to utilize all NextJS features and build a hybrid site where
+some of the pages are pre-rendered to static HTML, while others maybe
+rendered at requested time or revalidated from time to time, you can use
+the standard NextJS build API which requires a server, for this you can
+either use:
+
+- Managed server with [Vercel](https://vercel.com/)
+- Self-hosted server
+
+### Managed NextJS with Vercel
+
+Vercel is the fastest way to deploy your NextJS application, and it
+requires no configuration. When deployed to Vercel, the platform
+automatically detects NextJS and runs `next build` to create an optimized
+build output, including:
+
+- Assets are served from a
+  [Global Edge Network](https://vercel.com/features/infrastructure)
+- API routes are optimized as
+  [Serverless Functions](https://vercel.com/features/infrastructure)
+- Middlewares are turned into
+  [Edge Functions](https://vercel.com/features/edge-functions)
+
+In addition, Vercel provides features like:
+
+- Performance monitoring unit
+  [NextJS Analytics](https://vercel.com/analytics)
+- Automatic SSL certificates
+- Custom domains
+- CI/CD (through GitHub, GitLab, etc.)
+- Image optimization using `next/image`
+
+### Self-Hosted
+
+You can self-host NextJS using any hosting provider that supports
+[NodeJs](https://nodejs.org/en/) or [Docker](https://www.docker.com/)
+containers.
+
+#### NodeJs
+
+NextJS can be deployed to any hosting provider that supports NodeJs.
+
+```json title="package.json"
+{
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  }
+}
+```
+
+Run `next build` to build your application, and `next start` to start the
+NodeJs server. This server supports all features of NextJS.
+
+#### Docker
+
+NextJS can be deployed to any hosting provider that supports Docker
+containers, orchestrated or running inside a single node. For more
+information check out the
+[with-docker](https://github.com/vercel/next.js/tree/canary/examples/with-docker)
+example repository.
+
+#### Note on Image Optimization
+
+If you are using `next/image`, consider adding `sharp` for more performant
+Image optimization in your production environment by running
+`npm install sharp` in your project directory. This is not necessary for
+Vercel deployments, as `sharp` is installed automatically.
+
+## Before Going to Production
+
+Before deploying your NextJS application to production, there are some
+[recommendations by Vercel](https://nextjs.org/docs/going-to-production)
+team to ensure the best user experience.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Documentation
+
+- [Deployment](https://nextjs.org/docs/deployment) from NextJS docs.
+- [Static HTML Export](https://nextjs.org/docs/advanced-features/static-html-export)
+  from NextJS docs.
+- [Going to Production](https://nextjs.org/docs/going-to-production) from
+  NextJS docs.
