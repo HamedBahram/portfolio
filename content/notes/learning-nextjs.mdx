@@ -972,9 +972,11 @@ const Profile = () => {
 
 #### Using `SWR`
 
-React hooks for data fetching, [SWR](https://swr.vercel.app/) was created
-by the team behind NextJS. It handles caching, revalidation, focus
-tracking, re-fetching on intervals, and more.
+[SWR](https://swr.vercel.app/) exports React hooks for client-side data
+fetching. It implements a strategy where it first returns data from cache
+(stale), then sends a request to fetch the most up-to-date data
+(revalidate), hence the name stale-while-revalidate (SWR). It handles
+caching, revalidation, focus tracking, re-fetching on intervals, and more.
 
 Using the same example, we can use `SWR` to fetch the profile data. `SWR`
 will automatically cache the data and revalidate it for us.
@@ -999,10 +1001,8 @@ function Profile() {
 }
 ```
 
-SWR will first return the data from cache, then sends the fetch request to
-get the most up-to-date data. With `SWR`, components will get a stream of
-data updates constantly and automatically, and the UI will be always fast
-and reactive.
+With `SWR`, components will get a stream of data updates constantly and
+automatically, and the UI will be always fast and reactive.
 
 #### Pre-rendering Combined with Client-side Data Fetching
 
