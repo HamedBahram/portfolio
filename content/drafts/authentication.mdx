@@ -1,0 +1,44 @@
+## Two Main Approaches
+
+- Session Based
+- Token Based
+
+### Session Based Authentication
+
+1. The client sends a request with the user's credentials (e.g. username &
+   password). The servers looks up the user in the database and compares
+   the passwords and if matched, authenticates the user.
+
+2. Once authenticated, the server also creates a new session entry in the
+   database and sends the unique session ID back to the client for future
+   requests.
+
+3. The client typically stores the unique session ID in a cookie that is
+   attached to subsequent request automatically.
+
+4. Upon subsequent requests the servers reads the cookies and extracts the
+   session ID and looks it up in the database to verify such a session
+   exists and if it does, it authenticates the users.
+
+### Token Based Authentication
+
+1. The client sends a request with the user's credentials (e.g. username &
+   password). The servers looks up the user in the database and compares
+   the passwords and if matched, authenticates the user.
+
+2. Once authenticated, the server creates a token with an expiry time,
+   signs it with a secret key and sends it back to the client for future
+   requests.
+
+3. The client typically stores the token in the browser's local storage to
+   be retrieved for future requests.
+
+4. Upon subsequent requests the servers reads token and checks if it has
+   expired or if the signature has been tampered, if valid and untouched it
+   authenticates the user and grants access.
+
+### single-page apps and authentication
+
+In a single-page application, where requests don't hit the server after the
+initial page, implementing a session based authentication wouldn't be
+possible. Therefore we see token based authentication in single-page apps.

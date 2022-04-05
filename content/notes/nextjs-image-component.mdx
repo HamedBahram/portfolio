@@ -1,0 +1,369 @@
+---
+title: NextJS Image Component
+excerpt: How to use NextJS Image component for optimized performance
+coverImage: /images/notes/nextjs-image-component/cover.png
+ogImage: /images/notes/nextjs-image-component/cover.png
+tags:
+  - NextJS
+  - Image
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-04-05'
+---
+
+The `Image` component, is an extension of the HTML `<img>` element, evolved
+for the modern web. It includes a variety of built-in performance
+optimizations such as:
+
+- **Improved Performance**: always serve correctly sized images for each
+  device, using modern image formats.
+- **Visual Stability**: prevent Cumulative Layout Shift automatically.
+- **Faster Page Loads**: images are only loaded when they enter the
+  viewport, with optional blur-up placeholders
+- **Asset Flexibility**: on-demand image resizing, even for images stored
+  on remote servers
+
+To add an image to your application, import the `next/image` component:
+
+```jsx
+import Image from 'next/image'
+```
+
+### Required Props
+
+#### src
+
+Must be one of the following:
+
+- A statically imported image file
+- A path string. This can be either an absolute external URL or an internal
+  path depending on the loader prop or loader configuration.
+
+When using an external URL, you must add it to domains in `next.config.js`.
+
+#### width
+
+The width of the image, in pixels. Must be an integer without a unit.
+Required, except for statically imported images, or those with
+`layout="fill"`.
+
+#### height
+
+The height of the image, in pixels. Must be an integer without a unit.
+Required, except for statically imported images, or those with
+`layout="fill"`.
+
+### Local Images
+
+To use a local image, import your `.jpg`, `.png`, or `.webp` files:
+
+```jsx
+import profilePic from '../public/me.png'
+```
+
+NextJS will automatically determine the width and height of your image
+based on the imported file. These values are used to prevent Cumulative
+Layout Shift while your image is loading.
+
+```jsx showLineNumbers
+import Image from 'next/image'
+import profilePic from '../public/me.png'
+
+const Home = () => {
+  return (
+    <>
+      <Image
+        src={profilePic}
+        alt="Picture of the author"
+        // width={500} automatically provided
+        // height={500} automatically provided
+        // blurDataURL="data:..." automatically provided
+        placeholder="blur" // Optional blur-up while loading
+      />
+    </>
+  )
+}
+
+export default Home
+```
+
+Dynamic await `import` or `require` are not supported. The import must be
+static so it can be analyzed at build time.
+
+### Remote Images
+
+To use a remote image, the `src` property should be a URL string, which can
+be **relative** or **absolute**. Because NextJS does not have access to
+remote files during the build process, you'll need to provide the `width`,
+`height` and optional `blurDataURL` props manually:
+
+```jsx {6,8-9} showLineNumbers
+import Image from 'next/image'
+
+const Home = () => {
+  return (
+    <Image
+      src="/me.png"
+      alt="Picture of the author"
+      width={500}
+      height={500}
+    />
+  )
+}
+
+export default Home
+```
+
+Sometimes you may want to access a remote image but still, use the built-in
+NextJS Image Optimization API. To do this, leave the loader at its default
+setting and enter an **absolute** URL for the image `src`.
+
+```jsx {2} showLineNumbers
+<Image
+  src="https://cdn.example.com/me.png"
+  alt="Picture of the author"
+  width={500}
+  height={500}
+/>
+```
+
+To protect your application from malicious users, you must define a list of
+remote domains that you intend to access this way. This is configured in
+your `next.config.js` file, as shown below:
+
+```jsx {3} showLineNumbers title="next.config.js"
+module.exports = {
+  images: {
+    domains: ['cdn.example.com']
+  }
+}
+```
+
+### Loaders
+
+Note that in the example earlier, a partial URL ("/me.png") is provided for
+a remote image. This is possible because of the `next/image` loader.
+
+A loader is a function that generates the URLs for your image. It appends a
+root domain to your provided src and generates multiple URLs to request the
+image at different sizes. These multiple URLs are used in the automatic
+`srcset` generation so that visitors to your site will be served an image
+that is the right size for their viewport.
+
+The default loader for NextJS applications uses the built-in Image
+Optimization API, which optimizes images from anywhere on the web, and then
+serves them directly from the NextJS web server. If you would like to serve
+your images directly from a CDN or image server, you can use one of the
+built-in loaders or write your own with a few lines of JavaScript.
+
+```jsx {3-5,10} showLineNumbers
+import Image from 'next/image'
+
+const myLoader = ({ src, width, quality }) => {
+  return `https://example.com/${src}?w=${width}&q=${quality || 75}`
+}
+
+const MyImage = props => {
+  return (
+    <Image
+      loader={myLoader}
+      src="me.png"
+      alt="Picture of the author"
+      width={500}
+      height={500}
+    />
+  )
+}
+
+export default MyImage
+```
+
+Loaders can be defined per image, or at the application level. Setting the
+loader as a prop on the Image component overrides the default loader
+defined in the images section of `next.config.js`.
+
+#### Built-in Loaders
+
+The following Image Optimization cloud providers are included:
+
+- **Default**: works automatically with `next dev`, `next start`, or a
+  custom server
+- **Vercel**: works automatically when you deploy on
+  [Vercel](https://vercel.com/)
+- **Imgix**: `loader: 'imgix'`
+- **Cloudinary**: `loader: 'cloudinary'`
+- **Akamai**: `loader: 'akamai'`
+- **Custom**: `loader: 'custom'` use a custom cloud provider by
+  implementing the loader prop on the `next/image` component
+
+```jsx {3-4} showLineNumbers title="next.config.js"
+module.exports = {
+  images: {
+    loader: 'cloudinary',
+    path: 'https://res.cloudinary.com/myaccount'
+  }
+}
+```
+
+This loader will generate the URLs for your image. It appends the root
+domain specified in the `path` to the partial URL provided in the `src` in
+the Image component and generates multiple URLs to request the image at
+different sizes. example:
+
+```mdx
+https://res.cloudinary.com/myaccount/f_auto,c_cover,w_500/me.png
+```
+
+The default loader uses [squoosh](https://squoosh.app/) because it is quick
+to install and suitable for a development environment. When using
+`next start` in your production environment, it is strongly recommended
+that you install [sharp](https://github.com/lovell/sharp) by running
+`yarn add sharp` in your project directory. This is not necessary for
+Vercel deployments, as sharp is installed automatically.
+
+### Image Sizing
+
+Because the `next/image` is designed to guarantee good performance results,
+it cannot be used in a way that will contribute to layout shift, and must
+be sized in one of three ways:
+
+- **Automatically**, using a static import
+- **Explicitly**, by including a `width` and `height` property
+- **Implicitly**, by using `layout="fill"` which causes the image to expand
+  to fill its parent element.
+
+### Optional Image props
+
+#### layout
+
+The layout prop defines the behavior of the image as the viewport changes
+size. It can be one of the following four values:
+
+- **intrinsic**: this is the default value, it makes the image scale down
+  to fit the width of the container, but does not scale up beyond the
+  original image dimensions.
+
+- **responsive**: scales up or down to fit the container width. Ensure the
+  parent container uses `display: block`
+
+- **fill**: grows in both width and height to fill the container. It will
+  stretch both width and height to the dimensions of the parent element.
+  This is usually paired with `objectFit` property to avoid distorting the
+  image while stretching. Ensure the parent element uses
+  `position: relative`
+
+- **fixed**: the image dimensions will not change as the viewport changes
+  (no responsiveness) similar to the native `<img />` element.
+
+#### sizes
+
+A string that provides information about how wide the image will be at
+different breakpoints. Defaults to `100vw` when using `layout="responsive"`
+or` layout="fill"`.
+
+If you are using `layout="fill"` or `layout="responsive",` it's important
+to assign sizes for any image that takes up less than the full viewport
+width.
+
+For example, when the parent element will constrain the image to always be
+less than half the viewport width, use `sizes="50vw"`. Without sizes, the
+image will be sent at twice the necessary resolution, decreasing
+performance.
+
+If you are using `layout="intrinsic"` or `layout="fixed"`, then `sizes` is
+not needed because the upper bound width is constrained already.
+
+#### quality
+
+The quality of the optimized image, it's an integer between 1 and 100 where
+100 is the best quality. Defaults to 75.
+
+#### priority
+
+When true, the image will be considered high priority and preload. Lazy
+loading is automatically disabled for images using `priority`.
+
+```jsx {6} showLineNumbers
+<Image
+  src="/me.png"
+  alt="Picture of the author"
+  width={500}
+  height={500}
+  priority
+/>
+```
+
+You should use the priority property on any image detected as the Largest
+Contentful Paint (LCP) element. Should only be used when the image is
+visible above the fold. Defaults to `false`.
+
+#### placeholder
+
+A placeholder to use while the image is loading. Possible values are "blur"
+or "empty". Defaults to "empty".
+
+When "blur", the `blurDataURL` property will be used as the placeholder. If
+`src` is an object from a static import and the imported image is `.jpg`,
+`.png`, `.webp`, or `.avif`, then `blurDataURL` will be automatically
+populated.
+
+For dynamic images, you must provide the `blurDataURL` property.
+
+When "empty", there will be no placeholder while the image is loading, only
+empty space.
+
+#### blurDataURL
+
+A Data URL to be used as a placeholder image before the image successfully
+loads. Only takes effect when combined with `placeholder="blur"`.
+
+Must be a **base64-encoded** image. It will be enlarged and blurred, so a
+very small image (10px or less) is recommended. Including larger images as
+placeholders may harm your application performance.
+
+#### objectFit
+
+Defines how the image will fit into its parent container when using
+`layout="fill"`. This value is passed to the `object-fit` CSS property for
+the src image.
+
+#### objectPosition
+
+Defines how the image is positioned within its parent element when using
+`layout="fill"`. This value is passed to the `object-position` CSS property
+applied to the image.
+
+### Styling Image component
+
+Styling the `Image` component is not that different from styling a normal
+`<img />` element, but there are a few guidelines to keep in mind:
+
+- Pick the correct `layout` mode
+- Target the image with classes, not based on DOM structure. The
+  recommended way to style the inner `<img />` is to set the `className`
+  prop on the `Image` component.
+- You cannot use the `style` prop because the `Image` component does not
+  pass it through to the underlying `img`.
+- When using `layout="fill"`, the parent element must have
+  `position: relative`
+- When using `layout="responsive"`, the parent element must have
+  `display: block`
+
+## Summary
+
+NextJS Image component can help you achieve good
+[Core Web Vitals](https://web.dev/vitals/) while delivering a great user
+experience on the web. These measures are also factored into Google's
+search rankings.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Documentation
+
+- [next/image](https://nextjs.org/docs/api-reference/next/image) from
+  NextJS docs.
+- [Image Optimization](https://nextjs.org/docs/basic-features/image-optimization)
+  from NextJS docs.
