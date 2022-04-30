@@ -1,0 +1,150 @@
+---
+title: Cross-Site Request Forgery
+excerpt: What is a CSRF attack and how to mitigate it.
+coverImage: /images/notes/csrf-attacks/cover.png
+ogImage: /images/notes/csrf-attacks/cover.png
+tags:
+  - CSRF
+  - Security
+  - Authentication
+  - Authorization
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-04-30'
+---
+
+Cross-Site Request Forgery (CSRF), is when an attacker forges a request to
+your server from their own site, hence then name cross-site.
+
+## How does CSRF happen?
+
+Typically an attacker would trick a user to click on a link or image that
+takes the user to their phishing site where they have embedded a visible or
+often hidden HTML form that sends a request to your site:
+
+```html title="attacker.com"
+<form action="https://www.yoursite.com/user/profile" method="POST">
+  <button type="submit">Click here to win a car!</button>
+</form>
+```
+
+If the user is logged in on your site, when the attacker forges the
+request, the browser will send the user's session cookies along with the
+request to your server. Your server receives the cookies and verifies the
+session, authenticates the user and authorizes the request not knowing it
+was originated from the attacker's site.
+
+## How to mitigate CSRF attacks?
+
+### Only use JSON APIs
+
+If you're only accepting JSON in your backend rather than URL-encoded form
+data, you eliminate the risk of the above HTML form request forged against
+your server.
+
+This is because there is no way for a form to send JSON requests without
+using JavaScript, and JavaScript is same-origin restricted, meaning that
+the browser blocks requests that are not from the same origin. This stops a
+malicious site from accessing another site's data.
+
+### Disable CORS
+
+Disable cross-origin requests to stop other site accessing your data. If
+you want to allow CORS for whatever reason, you should limit it to safe
+methods, such as `GET`, `HEAD`, or `OPTIONS`.
+
+<BackgroundReading
+  href="https://web.dev/cross-origin-resource-sharing"
+  title="Background reading:"
+>
+  Cross-Origin Resource Sharing (CORS)
+</BackgroundReading>
+
+### `GET` should be safe
+
+Make sure all your `GET` requests are actually safe.
+
+An HTTP method is safe if it doesn't alter the state of the server. In
+other words, a method is safe if it leads to a read-only operation. Common
+safe HTTP methods are `GET`, `HEAD`, or `OPTIONS`.
+
+<BackgroundReading
+  href="https://developer.mozilla.org/en-US/docs/Glossary/Safe/HTTP"
+  title="Further reading:"
+>
+  Safe HTTP Methods
+</BackgroundReading>
+
+### Avoid using POST
+
+If you're not implementing the first recommendation and you are accepting
+URL-encoded form data in your backend, at least avoid using `POST`
+requests. Since forms can only send `GET` and `POST` requests, using other
+methods like `PUT`, `PATCH` and `DELETE` can limit the attacker with fewer
+options to exploit your site.
+
+This leads to the next suggestions of not using method-override in your
+applications.
+
+### Don't use method override
+
+HTML Forms are limited to sending `GET` and `POST` requests, many
+applications use `method-override` to be able to use `PUT`, `PATCH`, and
+`DELETE` requests over a regular form. This is a serious vulnerability,
+since not only you're accepting HTML form data but you're also allowing
+other HTTP methods to be performed by the same form.
+
+Don't use method-override in your application - use JavaScript to handle
+form submission and send JSON requests and only accept JSON in your
+backend, while disabling CORS.
+
+### CSRF Tokens
+
+The final solution is using CSRF tokens, and here is how they work:
+
+- Server generates and sends a CSRF token to the client
+- Client includes the token in subsequent requests to the server
+- The server verifies the token and rejects the request if the token is
+  missing or invalid
+
+This way, an attacker needs to get a valid token to be able to forge a
+request to your site. For this they would have to use JavaScript and if
+your site does not support CORS, then there's no way for the attacker to
+get a valid token, thus eliminating the threat. **Make sure CSRF tokens can
+not be accessed via JavaScript, and don't expose `/csrf` route to grab
+tokens!**
+
+CSRF tokens should be generated on a per-request basis and different every
+time. But how can the server verify the authenticity of these tokens if
+they are different for every request?
+
+This is where the salt comes along, the server would generate a random salt
+(e.g. a random string) and hashes this random salt with a secret (only
+known to the server) to generate a token.
+
+The server then sends the salt and the generated token to the client, which
+is then returned by the client to the server on subsequent requests. Once
+received, the server will hash the salt with it's own secret and compares
+the result with the token also sent by the client; It proceeds if they
+match and rejects if they don't.
+
+If you're using a database store for your sessions, the salt is typically
+saved in the database. If you're using cookie sessions however, the salt
+will be sent to the client and stored as a cookie; Therefore it's important
+to **to use `httpOnly` cookies that are not accessible via client-side
+JavaScript.** You can read about the
+[csurf](http://expressjs.com/en/resources/middleware/csurf.html) middleware
+in Express for more details.
+
+## Conclusion
+
+Change as many of your APIs to be JSON APIs, disable CORS where not needed
+and use CSRF tokens as the last line of defense to be safe.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+- [Understanding CSRF](https://github.com/pillarjs/understanding-csrf)
+- [Understanding CORS](https://web.dev/cross-origin-resource-sharing/)
