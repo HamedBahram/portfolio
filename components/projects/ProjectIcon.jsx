@@ -2,6 +2,7 @@ import Image from 'next/image'
 import { useTheme } from 'next-themes'
 import dark from '@/public/images/projects/nestzoom/dark.svg'
 import light from '@/public/images/projects/nestzoom/light.svg'
+import sweeter from '@/public/images/projects/sweeter/sweeter.svg'
 
 const ProjectIcon = ({ icon, className }) => {
   const { resolvedTheme } = useTheme()
@@ -15,6 +16,11 @@ const ProjectIcon = ({ icon, className }) => {
             alt="nest zoom logo"
             layout="fixed"
           />
+        </div>
+      )}
+      {icon === 'sweeter' && (
+        <div className="flex justify-center">
+          <Image src={sweeter} alt="Sweeter Logo" layout="fixed" />
         </div>
       )}
       {icon === 'reactjs' && (

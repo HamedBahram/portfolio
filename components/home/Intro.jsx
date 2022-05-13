@@ -13,8 +13,8 @@ const Intro = () => {
         </h1>
         <p className="text-gray-500">
           Welcome to my digital nook. I&#39;m a self-taught web developer
-          and here, I write about what I&#39;ve been working on and the
-          things I learned along the way.
+          and here, I share my thoughts and what I&#39;ve learned along the
+          way.
         </p>
       </div>
       <Image
