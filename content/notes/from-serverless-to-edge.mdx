@@ -1,0 +1,113 @@
+---
+title: From Serverless to Edge
+excerpt: How the web has evolved
+coverImage: /images/notes/from-serverless-to-edge/cover.png
+ogImage: /images/notes/from-serverless-to-edge/cover.png
+tags:
+  - Serverless
+  - Serverless Functions
+  - The Edge
+  - Edge Functions
+  - CDN
+  - FaaS
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-05-21'
+---
+
+Traditionally, the Edge has been perceived as a distributed network for
+storing static assets closer to the users. CDNs represent the first wave of
+the Edge network, reducing the transport time (i.e. latency) by being
+physically closer to the user, therefore improving performance.
+
+![Content Delivery Network](/images/notes/from-serverless-to-edge/cdn)
+
+As CDNs have become more advanced computing at the Edge is also emerging as
+a service all around the network. The next generation of the Edge promises
+to combine static-content CDNs with computing power on the Edge servers.
+
+But first, let's start with the underlying serverless architecture.
+
+## What is Serverless?
+
+In the early days of the web, anyone who wanted to build a web application
+had to own the physical hardware required to run a server.
+
+Fast forward to early 2000, a new cloud computing service model emerged,
+the infrastructure as a service (IaaS) model, which abstracted the lower
+infrastructure layers. It was much more cost-efficient than having to own
+and maintain these layers yourself.
+
+The next model was platform as a service (PaaS), which further abstracted
+the operating system as well as the runtime. All you had to do was to
+maintain your application.
+
+Back in 2014, yet another level of abstraction was introduced, and that was
+functions as a service (FaaS), which abstracted the application's logic
+into individual functions that can be executed in response to different
+events. In this model, you didn't even need a server. That was all managed
+for you by the service provider.
+
+In summary, serverless architecture abstracts away the details of
+maintaining servers and the underlying infrastructure and enables us to
+build applications without having to worry about servers. Note that despite
+the name "serverless", physical servers are still used, they are just
+managed by the service provider.
+
+## The Advent of Edge Functions
+
+One of the problems when dealing with servers, whether managed by you or
+the cloud service provider, is network latency, the effect of physical
+distance between users and the origin server, on response time.
+
+![Server Rendered Applications](/images/notes/from-serverless-to-edge/ssr)
+
+So far the solution has been to generate static pages so we can serve them
+faster from CDNs on the Edge, however, this comes at the cost of losing
+dynamic content. Speed and dynamic content are often at odds. But what if
+we could run code at the Edge?
+
+Serverless computing continues to evolve as providers come up with
+solutions to overcome its drawbacks. Edge functions are aiming to bring
+serverless functions closer to the users by combining the serverless
+architecture with the CDN Edge network, allowing code to run at the Edge.
+
+Edge Computing is a model in which storage and _computing_ move closer to
+the end-user. This way we can have the power of dynamic at the speed of
+static.
+
+![Server Rendered Applications](/images/notes/from-serverless-to-edge/edge)
+
+Edge functions are essentially serverless functions hosted on edge servers
+that can be used to process HTTP requests before they travel all the way
+back to the origin server. The more geographically distributed edge
+locations are, the less latency will be experienced by the users.
+
+Generally speaking, possible use cases can be anything that involves
+intercepting the client request before returning the response.
+
+### Example Use Cases
+
+- Authentication.
+- Redirect and Rewrite based on the user geolocation.
+- Add or modify request/response headers.
+- Read, write and manage cookies.
+- Render and return a page or component.
+- Respond with some JSON, like an API endpoint.
+- Enforce a block or IP allow-list.
+- A/B testing with different content.
+
+### State
+
+Edge applications will generally need both compute and state — and
+API-based serverless databases are filling the state side of that equation
+due to the distribution requirements. FaunaDB and PlanetScale are examples
+of database platforms designed specifically for serverless architecture.
+
+## The Future
+
+The reduction in latency brought by Edge computing coupled with the
+evolution of 5G, faster connectivity and devices, in general, can bring
+latency down to previously unattainable levels — allowing a new generation
+of application use cases in the near future.
