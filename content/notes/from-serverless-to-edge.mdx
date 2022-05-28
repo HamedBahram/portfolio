@@ -100,14 +100,52 @@ intercepting the client request before returning the response.
 
 ### State
 
-Edge applications will generally need both compute and state — and
-API-based serverless databases are filling the state side of that equation
-due to the distribution requirements. FaunaDB and PlanetScale are examples
-of database platforms designed specifically for serverless architecture.
+Edge applications will generally need both compute and state. API-based
+serverless databases are filling the state side of that equation while
+we're waiting for databases at the Edge to mature.
+[FaunaDB](https://fauna.com/) and [PlanetScale](https://planetscale.com/)
+are examples of database platforms designed specifically for serverless
+architecture.
+
+### Example
+
+One of the easiest ways you can take advantage of the Edge functions in
+your React application is the new
+[NextJS Middleware](https://nextjs.org/docs/advanced-features/middleware)
+functions. Middlewares are deployed as Edge functions by default when
+hosted on [Vercel](https://vercel.com).
+
+Using NextJS middlewares deployed as Edge functions to Vercel, you don't
+need to worry about configuring infrastructure. Middlewares enables you to
+use code over configuration and run code close to your users on Vercel's
+Edge network. Let's take a look at an example:
+
+You can define a middleware by creating a `_middleware.js` file inside the
+`/pages` folder.
+
+```jsx title="pages/_middleware.js"
+import { NextResponse } from 'next/server'
+
+export function middleware(req) {
+  const country = req.geo?.country || 'us'
+  return NextResponse.rewrite(`/${country}`)
+  // rewrites to https://example.com/us
+  // if geolocation data is not available
+}
+```
+
+This middleware function would now run before all requests to our site. It
+will look at the user's location and rewrite the request to the user's
+country: `/${country}`.
 
 ## The Future
 
-The reduction in latency brought by Edge computing coupled with the
-evolution of 5G, faster connectivity and devices, in general, can bring
-latency down to previously unattainable levels — allowing a new generation
-of application use cases in the near future.
+For React applications, with React Server Components in development, you'll
+be able to render pages at the edge close to your users with zero
+client-side JavaScript. This improves the user experience by combining the
+best of server-side rendering and client-side interactivity.
+
+On a broader level, the reduction in latency brought by Edge computing
+coupled with the evolution of 5G networks and faster devices, can bring in
+a new generation of application use cases that were previously
+unattainable.
