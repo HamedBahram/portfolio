@@ -109,15 +109,14 @@ architecture.
 
 ### Example
 
-One of the easiest ways you can take advantage of the Edge functions in
-your React application is the new
-[NextJS Middleware](https://nextjs.org/docs/advanced-features/middleware)
-functions. Middlewares are deployed as Edge functions by default when
-hosted on [Vercel](https://vercel.com).
+One of the easiest ways to use Edge functions is the new
+[NextJS Middleware](https://nextjs.org/docs/advanced-features/middleware).
+By default, middlewares are deployed as Edge functions when hosted on
+[Vercel](https://vercel.com).
 
 Using NextJS middlewares deployed as Edge functions to Vercel, you don't
 need to worry about configuring infrastructure. Middlewares enables you to
-use code over configuration and run code close to your users on Vercel's
+use code over configuration and run code closer to your users on Vercel's
 Edge network. Let's take a look at an example:
 
 You can define a middleware by creating a `_middleware.js` file inside the
@@ -134,7 +133,7 @@ export function middleware(req) {
 }
 ```
 
-This middleware function would now run before all requests to our site. It
+This middleware function would now run before all requests to your site. It
 will look at the user's location and rewrite the request to the user's
 country: `/${country}`.
 
