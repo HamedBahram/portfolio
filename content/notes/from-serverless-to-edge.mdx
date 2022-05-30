@@ -37,17 +37,17 @@ had to own the physical hardware required to run a server.
 Fast forward to early 2000, a new cloud computing service model emerged,
 the infrastructure as a service (IaaS) model, which abstracted the lower
 infrastructure layers. It was much more cost-efficient than having to own
-and maintain these layers yourself.
+and maintain the infrastructure yourself.
 
-The next model was platform as a service (PaaS), which further abstracted
-the operating system as well as the runtime. All you had to do was to
-maintain your application.
+The next model was platform as a service (PaaS), which further provided the
+operating system as well as the runtime, on top of the underlying
+infrastructure. All you had to do was to maintain your application.
 
 Back in 2014, yet another level of abstraction was introduced, and that was
-functions as a service (FaaS), which abstracted the application's logic
-into individual functions that can be executed in response to different
-events. In this model, you didn't even need a server. That was all managed
-for you by the service provider.
+functions as a service (FaaS), which reduced the application's logic into
+individual functions that can be executed in response to different events.
+In this model, you didn't even need a server. That was all managed for you
+by the service provider.
 
 In summary, serverless architecture abstracts away the details of
 maintaining servers and the underlying infrastructure and enables us to
@@ -104,7 +104,7 @@ Edge applications will generally need both compute and state. API-based
 serverless databases are filling the state side of that equation while
 we're waiting for databases at the Edge to mature.
 [FaunaDB](https://fauna.com/) and [PlanetScale](https://planetscale.com/)
-are examples of database platforms designed specifically for serverless
+are examples of database platforms designed specifically for the serverless
 architecture.
 
 ### Example
