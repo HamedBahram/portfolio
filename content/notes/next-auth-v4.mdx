@@ -1,0 +1,1026 @@
+---
+title: NextAuth Package
+excerpt: Authentication in NextJS using next-auth package
+coverImage: /images/notes/next-auth-v4/cover.png
+ogImage: /images/notes/next-auth-v4/cover.png
+tags:
+  - NextJS
+  - Authentication
+  - next-auth
+  - NextAuth
+author:
+  name: Hamed Bahram
+  picture: /images/authors/hamed.png
+date: '2022-06-09'
+---
+
+This note covers handling authentication in NextJS using the
+[next-auth](https://next-auth.js.org/) package. It goes over strategies,
+patterns and providers you can use to implement authentication in your
+application.
+
+## Getting Started
+
+To add next-auth to a project, create a file called `[...nextauth].js` in
+`pages/api/auth` folder. This contains the dynamic route handler and all of
+your global configurations.
+
+```jsx showLineNumbers title="pages/api/auth/[...nextauth].js"
+import NextAuth from 'next-auth'
+import GithubProvider from 'next-auth/providers/github'
+
+export default NextAuth({
+  providers: [
+    GithubProvider({
+      clientId: process.env.GITHUB_ID,
+      clientSecret: process.env.GITHUB_SECRET
+    })
+    // ...add more providers here
+  ]
+})
+```
+
+All requests to `api/auth/*` (e.g. signIn, signOut, etc.) will
+automatically be handled by next-auth.
+
+### Options
+
+You can pass different configuration options when initializing `NextAuth`:
+
+#### `providers`
+
+- Default value: [ ]
+- Required: Yes
+
+Authentication Providers are services that can be used to sign in a user.
+next-auth comes with a lot of different built-in providers, here is a high
+level summary of the three main categories:
+
+- [OAuth provider](https://next-auth.js.org/configuration/providers/oauth)
+  (e.g. Google, Facebook, etc.)
+- [Email Provider](https://next-auth.js.org/configuration/providers/email)
+  (passwordless magic links)
+- [Credentials Provider](https://next-auth.js.org/configuration/providers/credentials)
+  (e.g. username & password)
+
+#### Using OAuth Provider
+
+next-auth is designed to work with any OAuth service, it supports OAuth
+1.0, 1.0A, 2.0 and OpenID Connect and has built-in support for most popular
+sign-in services.This allows users to sign in with their favorite
+pre-existing logins.
+
+##### How To
+
+1.  Register your application at the developer portal of your provider.
+2.  The redirect URL (or callback URL) should follow this format:
+
+```mdx
+[origin]/api/auth/callback/[provider]
+```
+
+For example, using Google, the redirect URL would look like this:
+
+```mdx
+https://example.com/api/auth/callback/google
+```
+
+3. Set **client ID** and **client secret** environment variables. For
+   Google this would be:
+
+```mdx title=".env.local"
+GOOGLE_CLIENT_ID=YOUR_GOOGLE_CLIENT_ID
+GOOGLE_CLIENT_SECRET=YOUR_GOOGLE_CLIENT_SECRET
+```
+
+4. Add the provider settings to the NextAuth options object. You can add as
+   many OAuth providers as you like.
+
+```jsx {2,6-9} showLineNumbers title="pages/api/auth/[...nextauth].js"
+import NextAuth from 'next-auth'
+import GoogleProvider from 'next-auth/providers/google'
+
+export default NextAuth({
+  providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET
+    })
+    // ...add more providers here
+  ]
+})
+```
+
+5. Once a provider has been set up, you can sign in at the following URL:
+   `/api/auth/signin`. This will render your custom sign-in page (if any)
+   or the default auto-generated page with all the configured providers.
+
+#### Using Email Provider
+
+The Email provider is a passwordless login solution that sends "magic
+links" via email for the user to click on and sign in.
+
+Adding the Email provider in addition to OAuth services, provides a way for
+users to sign in if they lose access to their OAuth account.
+
+A user account (i.e. an entry in the Users table) will not be created for
+the user until the first time they verify their email address. If an email
+address is already associated with an account, the user will be signed in
+to that account when they use the link in the email.
+
+The Email Provider can be used with both JSON Web Tokens and database
+sessions, but you must configure a database adapter to persist the
+verification tokens. It is not possible to enable email sign in without
+using a database.
+
+##### How To
+
+1. You'll need to install
+   [nodemailer](https://www.npmjs.com/package/nodemailer) if you want to
+   use the Email provider.
+
+```mdx
+npm install nodemailer
+```
+
+2.  You will need an SMTP account; ideally one that
+    [works with nodemailer](http://nodemailer.com/smtp/well-known/).
+
+3.  Configure the SMTP server connection by either using a connection
+    string or a configuration object.
+
+    - **Using a connection string**, add the connection string to your
+      environment variables:
+
+      ```mdx title=".env.local"
+      EMAIL_SERVER=smtp://username:password@smtp.example.com:587
+      EMAIL_FROM=hello@example.com
+      ```
+
+      You can add the email provider to you NextAuth config:
+
+      ```jsx {2,6-9} showLineNumbers title="pages/api/auth/[...nextauth].js"
+      import NextAuth from 'next-auth'
+      import EmailProvider from 'next-auth/providers/email'
+
+      export default NextAuth({
+        providers: [
+          EmailProvider({
+            server: process.env.EMAIL_SERVER,
+            from: process.env.EMAIL_FROM
+          })
+        ]
+      })
+      ```
+
+    - **Using a configuration object**, add the configuration object
+      options individually:
+
+      ```mdx title=".env.local"
+      EMAIL_SERVER_USER=username  
+      EMAIL_SERVER_PASSWORD=password  
+      EMAIL_SERVER_HOST=smtp.example.com  
+      EMAIL_SERVER_PORT=587  
+      EMAIL_FROM=hello@example.com
+      ```
+
+      Now you can add the provider settings to the NextAuth options object
+      in the Email Provider.
+
+      ```jsx {2,6-16} showLineNumbers title="pages/api/auth/[...nextauth].js"
+      import NextAuth from 'next-auth'
+      import EmailProvider from 'next-auth/providers/email'
+
+      export default NextAuth({
+        providers: [
+          EmailProvider({
+            server: {
+              host: process.env.EMAIL_SERVER_HOST,
+              port: process.env.EMAIL_SERVER_PORT,
+              auth: {
+                user: process.env.EMAIL_SERVER_USER,
+                pass: process.env.EMAIL_SERVER_PASSWORD
+              }
+            },
+            from: process.env.EMAIL_FROM
+          })
+        ]
+      })
+      ```
+
+4.  Set up a [database adapter](#adapter) for storing the email
+    verification token.
+
+5.  You can now sign in with an email at `/api/auth/signin`.
+
+You can fully customize the email that is sent by passing the
+`sendVerificationRequest` function option to the Email provider. See
+[here](https://next-auth.js.org/providers/email#customizing-emails) for
+more details.
+
+#### Using Credentials Provider
+
+The Credentials provider allows you to handle signing in with arbitrary
+credentials, such as a username / password, two-factor authentication, etc.
+It supports use cases where you have an existing system you need to
+authenticate users against.
+
+The Credentials provider does not work with database sessions and can only
+be used if JSON Web Tokens are enabled for sessions. As a result users
+authenticated with the Credentials provider are not persisted in the
+database.
+
+The Credentials provider is specified like other providers, except that you
+need to define the `authorize` function that accepts credentials submitted
+via an HTTP POST request as input and returns either:
+
+1. A user object, which indicates the credentials are valid. If you return
+   an object it will be persisted to the JSON Web Token and the user will
+   be signed in.
+
+2. If you return `null`, the user will be sent to the `signin` page with
+   the error message as a query parameter. If you're using the
+   auto-generated `signin` page the error will be displayed to the user.
+
+3. If you throw an Error, the user will be sent to the `error` page with
+   the error message as a query parameter. If you're using the
+   auto-generated `error` page the error will be displayed to the user.
+
+```jsx {2,6-26} showLineNumbers
+import NextAuth from 'next-auth'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import loginUser from '@utils/database'
+
+export default NextAuth({
+  providers: [
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        username: {
+          label: 'Username',
+          type: 'text',
+          placeholder: 'username'
+        },
+        password: { label: 'Password', type: 'password' }
+      },
+      async authorize(credentials, req) {
+        const { email, password } = credentials
+        const user = await loginUser(email, password)
+
+        if (user) {
+          return user
+        } else {
+          return null
+        }
+      }
+    })
+  ]
+})
+```
+
+##### Credentials Provider Options
+
+- `name`  
+  The name to display on the built-in sign in page (e.g. "Sign in with...")
+- `credentials`  
+  The credentials is used to generate a suitable form on the sign in page.
+  You can specify whatever fields you are expecting to be submitted e.g.
+  domain, username, password, 2FA token, etc..You can pass any HTML
+  attribute to the `input` tag through this object.
+- `authorize`  
+  Add logic here to look up the user from the supplied credentials. If you
+  return an object from this function the user will be signed in and the
+  object will be saved in the `user` property of the JWT. This method also
+  receives the `req` object as the second parameter to obtain additional
+  information such as the request IP address.
+
+#### `secret`
+
+- Default value: No default in production
+- Required: Yes (if `NEXTAUTH_SECRET` is not set)
+
+A random string used to hash tokens, cookies and generate cryptographic
+keys. If you set `NEXTAUTH_SECRET` as an environment variable, you don't
+need to define this option (recommended).
+
+#### `session`
+
+- Default value: object (shown below)
+- Required: No
+
+```jsx
+...
+// The default session object
+session: {
+  strategy: "jwt",
+  maxAge: 30 * 24 * 60 * 60, // 30 days
+  updateAge: 24 * 60 * 60, // 24 hours
+}
+...
+```
+
+The `session` object is optional and can contain the following properties:
+
+- `strategy: "database" | "jwt"`  
+  Choose how you want to save the user session. It defaults to `jwt`, where
+  an encrypted JWT (JWE) is stored in the session cookie.
+
+  However, if you define an `adapter`, it will default to `database`
+  instead, where the session is saved to the database and the cookie will
+  only contain the `sessionId Token` used to look up the session in the
+  database.
+
+  When using an adapter, you can still force a JWT session by explicitly
+  setting `jwt` as the `strategy`.
+
+- `maxAge` (seconds)  
+  How long until an idle session expires and is no longer valid.
+
+- `updateAge` (seconds)  
+  Define how frequently to update the database to extend a session. Set it
+  to `0` to always update the database. This option is ignored if using
+  JSON Web Tokens.
+
+#### `pages`
+
+- Default value: {}
+- Required: No
+
+The next-auth package comes with built-in sign in, sign out and error
+pages, however, you can create your own custom pages and specify the URLs
+in the `pages` options when setting up `NextAuth`.
+
+```jsx
+...
+pages: {
+  signIn: '/auth/signin',
+  signOut: '/auth/signout',
+  error: '/auth/error',
+  verifyRequest: '/auth/verify-request',
+  newUser: '/auth/new-user'
+}
+...
+```
+
+Pages specified will override the corresponding built-in page. You can
+leave out any of the pages you're not interested and next-auth will use the
+default built-in page instead when needed.
+
+Setting up your own custom pages is pretty straight forward. You can
+consult the
+[pages documentation](https://next-auth.js.org/configuration/pages) for
+finer details.
+
+#### `callbacks`
+
+- Default value: object
+- Required: No
+
+Callbacks are asynchronous functions you can use to control what happens
+when an action is performed. You can specify a handler for any of the
+following callbacks:
+
+```jsx
+...
+callbacks: {
+  async signIn({ user, account, profile, email, credentials }) {
+    return true
+  },
+  async redirect({ url, baseUrl }) {
+    return baseUrl
+  },
+  async session({ session, token, user }) {
+    return session
+  },
+  async jwt({ token, user, account, profile, isNewUser }) {
+    return token
+  }
+}
+...
+```
+
+For example if you want to pass data such as the User ID to the browser
+when using **JSON Web Tokens**, you can persist the data in the token when
+the `jwt` callback is called, then pass the data through to the browser in
+the `session` callback.
+
+```jsx {4,9} showLineNumbers
+...
+callbacks: {
+  async jwt({ token, account }) {
+    if (account) {
+      token.accessToken = account.access_token
+    }
+    return token
+  }
+  async session({ session, token, user }) {
+    session.accessToken = token.accessToken
+    return session
+  }
+}
+...
+```
+
+When using **JSON Web Tokens** the `jwt` callback is invoked before the
+`session` callback, so anything you add to the `token` will be immediately
+available in the `session` callback, like the `accessToken` in the example
+above.
+
+See the
+[callbacks documentation](https://next-auth.js.org/configuration/callbacks)
+for more information on how to use callback functions.
+
+#### `adapter`
+
+- Default value: none
+- Required: No
+
+If you prefer to use database sessions over JSON web tokens, or when you
+would like to persist user data, you need to install an
+[adapter](https://next-auth.js.org/adapters/overview). You also need an
+adapter if you are using the **Email Provider** (for persisting
+verification tokens).
+
+When you specify an adapter, your `session.strategy` will default to
+`database`. You can still use `jwt` by explicitly setting it:
+
+```jsx
+...
+adapter: MongoDBAdapter(clientPromise),
+session: {
+  strategy: 'jwt',
+},
+...
+```
+
+#### `theme`
+
+- Default value: object
+- Required: No
+
+```jsx
+...
+theme: {
+  colorScheme: "auto",
+  brandColor: "",
+  logo: ""
+}
+...
+```
+
+- `colorScheme: "auto" | "dark" | "light"`  
+  Changes the color theme of the default built-in
+  (signin/signout/verify-request/error) pages. Set it to `light`, if you
+  want to force pages to always be light, and `dark` to always force a dark
+  theme. Set it to `auto` or leave it out if you want the pages to follow
+  the preferred system theme.
+- `brandColor`: (Hex) Changes the accent color used in the default pages.
+- `logo`: URL of your logo, which will be rendered above the main card in
+  the default pages.
+
+For a list of other options you can pass to `NextAuth`, you can refer to
+the
+[Options documentation page](https://next-auth.js.org/configuration/options).
+
+### Environment Variables
+
+#### NEXTAUTH_URL
+
+When deploying to production, set the NEXTAUTH_URL environment variable to
+the canonical URL of your site.
+
+```mdx title=".env.local"
+NEXTAUTH_URL=https://example.com
+```
+
+#### NEXTAUTH_SECRET
+
+Used to encrypt the JSON Web Token (JWT), and to hash email verification
+tokens. This is the default value for the `secret` option. And if you are
+using Middleware this environment variable must be set.
+
+```mdx title=".env.local"
+NEXTAUTH_SECRET=random-secret-string
+```
+
+Now that we're done setting up next-auth, let's see how we can use it on
+the client side.
+
+## Client API
+
+The client API makes it easy to access the session from React.
+
+#### Example Session Object
+
+```jsx
+{
+  user: {
+    name: string
+    email: string
+    image: string
+  },
+  expires: Date // session expiry
+}
+```
+
+The session object contains enough data to display information about the
+user (e.g name, email, image). You can use the
+[session callback](#callbacks) to return additional data in the session
+object.
+
+To access the session object, you'll need to first expose the session
+context at the top level of your application via the `SessionProvider`.
+
+### SessionProvider
+
+The `SessionProvider` exposes the session across your app using
+[React Context](https://reactjs.org/docs/context.html).
+
+```jsx {5-7} showLineNumbers title="pages/_app.js"
+import { SessionProvider } from 'next-auth/react'
+
+function App({ Component, pageProps }) {
+  return (
+    <SessionProvider>
+      <Component {...pageProps} />
+    </SessionProvider>
+  )
+}
+
+export default App
+```
+
+If you pass the `session` prop to the `SessionProvider`, you can avoid
+checking the session twice on pages that support both server-side and
+client-side rendering.
+
+```jsx {3} showLineNumbers title="pages/_app.js"
+...
+<SessionProvider session={pageProps.session}>
+  <Component {...pageProps} />
+</SessionProvider>
+...
+```
+
+Obviously, this would only work on pages where you pass the session as a
+prop, This is usually done in `getInitialProps` or `getServerSideProps`:
+
+```jsx {9} showLineNumbers title="pages/index.js"
+import { getSession } from 'next-auth/react'
+
+// your page component
+export default const Page = () => { ... }
+
+export async function getServerSideProps(context) {
+  return {
+    props: {
+      session: await getSession(context)
+    }
+  }
+}
+```
+
+If all your pages require authentication, then you can provide the
+`session` prop via the `getInitialProps` in the `_app.js`.
+
+<BackgroundReading
+  href="https://nextjs.org/docs/advanced-features/custom-app"
+  title="Background reading:"
+>
+  Custom App Component
+</BackgroundReading>
+
+Alternatively, you can handle authentication client-side as described in
+the next section.
+
+#### Options
+
+Other than the `session` you can pass other props to the `SessionProvider`
+component:
+
+- `session`: to pass the session if it was already fetched from the page.
+- `basePath`: in case you use a custom path like "/app" rather than the
+  root "/".
+- `refetchInterval`: how often (in seconds) the client should contact the
+  server to update the session. Defaults to 0 which means no session
+  polling.
+- `refetchOnWindowFocus`: control whether client should update the session
+  when you switch focus on tabs/windows. Defaults to `true`.
+
+```jsx {4-7} showLineNumbers title="pages/_app.js"
+...
+<SessionProvider
+  session={pageProps.session}
+  basePath="app"
+  refetchInterval={5 * 60} // refetch session every 5 minutes
+  refetchOnWindowFocus={true} // refetch session when focused
+>
+  <Component {...pageProps} />
+</SessionProvider>
+...
+```
+
+Now that we have exposed the session context, let's see how we can access
+it from our components using the `useSession` custom hook.
+
+### useSession
+
+- Client side: Yes
+- Server side: No
+
+The `useSession` hook is the easiest way to check the session on the
+client-side.
+
+```jsx {4} showLineNumbers
+import { useSession } from 'next-auth/react'
+
+const Component = () => {
+  const { data: session, status } = useSession()
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
+  if (status === 'authenticated') {
+    return <div>Signed in as {session.user.email}</div>
+  }
+
+  return <a href="/api/auth/signin">Sign in</a>
+}
+
+export default Component
+```
+
+`useSession` returns an object containing the following values:
+
+- `data`: this can be either
+  - `undefined`: when the session hasn't been fetched yet.
+  - `null`: when failed to retrieve the session.
+  - The session object.
+- `status`: one of three possible session states:
+  - "loading"
+  - "authenticated"
+  - "unauthenticated"
+
+#### Options
+
+You can pass an options object to the `useSession` hook with the following
+properties and methods:
+
+- `required`: when set to `true`, it makes sure you always have a valid
+  session.
+- `onUnauthenticated`: is called when there is no session found.
+- `onFail`: is called when failed to fetched the session.
+
+#### Using the `required: true` option
+
+when you pass `required: true` option to the `useSession` hook, it makes
+sure you always have a valid session. If after the initial loading state
+there was no session found, it redirects the user to the sign-in page, from
+where - after a successful login - the user will be sent back to the page
+they started on. You can override this behavior by providing your own
+`onUnauthenticated` method.
+
+```jsx {4} showLineNumbers title="pages/protected.js"
+import { useSession } from 'next-auth/react'
+
+const Page = () => {
+  const { status } = useSession({ required: true })
+
+  // when `required: true` is passed,
+  // `status` can only be "loading" or "authenticated"
+  if (status === 'loading') {
+    return 'Loading...'
+  }
+
+  return 'User is logged in'
+}
+
+export default Page
+```
+
+To take this even further, instead of calling `useSession` inside every
+protected page individually, you can manage this at the top level
+`_app.js`.
+
+```jsx {6-12} showLineNumbers title="pages/_app.js"
+import { useSession } from 'next-auth/react'
+
+function App({ Component, pageProps }) {
+  return (
+    <SessionProvider session={pageProps.session}>
+      {Component.auth ? (
+        <Auth>
+          <Component {...pageProps} />
+        </Auth>
+      ) : (
+        <Component {...pageProps} />
+      )}
+    </SessionProvider>
+  )
+}
+
+function Auth({ children }) {
+  const { status } = useSession({ required: true })
+
+  // when `required: true` is passed,
+  // `status` can only be "loading" or "authenticated"
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
+  return children
+}
+
+export default App
+```
+
+Now all you need to do to protect a page, is to set the `auth` property on
+the page component to `true`.
+
+```jsx {6} showLineNumbers title="pages/protected.js"
+const Page = () => {
+  // session is always non-null inside this page
+  return 'User is logged in'
+}
+
+Page.auth = true
+
+export default Page
+```
+
+`useSession` made it easy to access the shared session on the client-side.
+Now let's see how we can check the session on the server-side using
+`getSession`.
+
+### getSession
+
+- Client side: Yes
+- Server side: Yes
+
+The `getSession` function calls the `/api/auth/session` endpoint and
+returns a promise that resolves to a session object, or `null` if no
+session exists. It can be called both server-side or client-side.
+
+#### Client Side Example
+
+```jsx {4} showLineNumbers title="pages/index.js"
+import { getSession } from 'next-auth/react'
+
+async function myFunction() {
+  const session = await getSession()
+  ...
+}
+```
+
+#### Server Side Example
+
+When calling `getSession` server side, you need to pass `{req}` or the
+`context` object.
+
+```jsx {4} showLineNumbers title="pages/api/endpoint.js"
+import { getSession } from 'next-auth/react'
+
+export default async (req, res) => {
+  const session = await getSession({ req })
+  if (session) {
+    // Signed in
+  } else {
+    // Not Signed in
+  }
+  res.end()
+}
+```
+
+Using `getSession` you can easily protect your API routes and any
+server-side code executed inside `getServerSideProps`.
+
+Now let's see how users can create an account and/or sign in.
+
+### signIn
+
+- Client side: Yes
+- Server side: No
+
+Using the `signIn` method makes sure:
+
+- The user is redirected back to the page they started after completing the
+  sign-in flow.
+- Handles CSRF tokens when signing in with email.
+
+```jsx {7} showLineNumbers
+import { signIn } from 'next-auth/react'
+
+const Header = () => {
+  return (
+    <header>
+      <nav>
+        <button onClick={() => signIn()}>Sign in</button>
+      </nav>
+    </header>
+  )
+}
+
+export default Header
+```
+
+`signIn` method can be called in different ways
+
+- When called with no arguments, the user will be redirected to the sign in
+  page, where the user can choose what authentication method they prefer.
+- When passed the provider's `id` as the first argument, it redirects to
+  the provider's page directly and starts the sign-in flow.
+
+For example to sign in with Google:
+
+```jsx {7} showLineNumbers
+import { signIn } from 'next-auth/react'
+
+const Header = () => {
+  return (
+    <header>
+      <nav>
+        <button onClick={() => signIn('google')}>
+          Sign in with Google
+        </button>
+      </nav>
+    </header>
+  )
+}
+
+export default Header
+```
+
+You can also pass options such as:
+
+- `email` for email provider sign-in flow.
+- Any credentials for credentials provider sign-in flow (e.g. email &
+  password).
+- `callbackUrl` to which URL the user will be redirected after signing in,
+  it defaults to the current URL.
+- `redirect: false` to disable the default redirection and stay on the same
+  page. This option is only available for **credentials** and **email**
+  providers.
+
+options are passed via an options object as the second parameter, for
+example to sign in with email and redirect to `/foo` after completion:
+
+```jsx {16} showLineNumbers
+import { useState } from 'react'
+import { signIn } from 'next-auth/react'
+
+const SignInForm = () => {
+  const [email, setEmail] = useState('')
+
+  return (
+    <form>
+      <input
+        type="email"
+        value={email}
+        onChange={e => setEmail(e.target.value)}
+      />
+      <button
+        href={`/api/auth/signin`}
+        onClick={() => signIn('email', { email, callbackUrl: '/foo' })}
+      >
+        Sign in with Email
+      </button>
+    </form>
+  )
+}
+
+export default SignInForm
+```
+
+#### Using the `redirect: false` option
+
+Sometimes you may want to deal with the sign-in response on the same page.
+For example, if an error occurs you may want to handle the error on the
+same page and show an error message to the user. You can pass
+`redirect: false` option.
+
+```jsx
+const response = await signIn('credentials', { password, redirect: false })
+```
+
+Now `signIn` returns a promise that will resolve to the following object:
+
+```jsx
+{
+  error: string | undefined
+  status: number
+  ok: boolean
+  url: string | null
+}
+```
+
+You can check the `ok` property or the `error` to see if the sign-in was
+successful.
+
+#### Additional Parameters
+
+you can also pass additional parameters to the `/authorize` endpoint
+through the third argument of the `signIn` method.
+
+```jsx
+signIn('auth0', null, { login_hint: 'info@example.com' })
+```
+
+### signOut
+
+- Client side: Yes
+- Server side: No
+
+Using the `signOut` method makes sure:
+
+- The user is redirected back to the page they started, after signing out.
+- Handles CSRF tokens automatically.
+- Reloads the page in the browser when sign-out flow is completed.
+
+```jsx {7} showLineNumbers
+import { signOut } from 'next-auth/react'
+
+const Header = () => {
+  return (
+    <header>
+      <nav>
+        <button onClick={() => signOut()}>Sign Out</button>
+      </nav>
+    </header>
+  )
+}
+
+export default Header
+```
+
+You can also pass options such as:
+
+- `callbackUrl` to which URL the user will be redirected after signing out,
+  it defaults to the current URL.
+- `redirect: false` to disable the default redirection and page reload.
+
+options are passed via an options object, for example to sign out and
+redirect to `/foo` after completion:
+
+```jsx {7} showLineNumbers
+import { signOut } from 'next-auth/react'
+
+const Header = () => {
+  return (
+    <header>
+      <nav>
+        <button onClick={() => signOut({ callbackUrl: '/foo' })}>
+          Sign Out
+        </button>
+      </nav>
+    </header>
+  )
+}
+
+export default Header
+```
+
+#### Using the `redirect: false` option
+
+When passed the `redirect: false` option, the user will be logged out and
+the session will be deleted without the default redirection and page
+reload.
+
+```jsx
+const response = await signOut({ redirect: false })
+```
+
+Now `signOut` returns a promise that will resolve to the following object:
+
+```jsx
+{
+  url: string
+}
+```
+
+`url` is the validated URL the user would've been redirected to otherwise.
+Therefor if you want to redirect the user to another page after signing out
+without reloading the page, you can use the `url` value returned from
+`signOut`, and redirect the user with `useRouter` hook from `next-router`.
+
+```jsx
+import { useRouter } from 'next/router'
+
+const router = useRouter()
+const { url } = await signOut({ redirect: false, callbackUrl: '/foo' })
+router.push(url)
+```
+
+## Summary
+
+next-auth allows us to easily implement authentication with NextJS apps and
+comes with built-in support for a variety of providers ranging from OAuth
+to magic links to credentials. Hope you found this note helpful.
+
+## Resources
+
+Here are some of the resources that inspired this note:
+
+#### Documentation
+
+- [NextAuth.js](https://next-auth.js.org/)
