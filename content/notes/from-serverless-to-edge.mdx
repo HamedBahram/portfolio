@@ -16,76 +16,86 @@ author:
 date: '2022-05-21'
 ---
 
-Traditionally, the Edge has been perceived as a distributed network for
-storing static assets closer to the users. CDNs represent the first wave of
-the Edge network, reducing the transport time (i.e. latency) by being
-physically closer to the user, therefore improving performance.
+Traditionally, the Edge was more of a distributed network for storing
+static assets closer to the users. CDNs represent the first wave of the
+Edge network, reducing the transport time (i.e., latency) by being
+physically closer to the user and improving performance.
 
 ![Content Delivery Network](/images/notes/from-serverless-to-edge/cdn)
 
-As CDNs have become more advanced computing at the Edge is also emerging as
-a service all around the network. The next generation of the Edge promises
-to combine static-content CDNs with computing power on the Edge servers.
+As CDNs become more advanced, computing at the Edge is also emerging as a
+service all around the network. The next generation of the Edge promises to
+combine static-content CDNs with computing power on the Edge servers.
 
 But first, let's start with the underlying serverless architecture.
 
 ## What is Serverless?
 
 In the early days of the web, anyone who wanted to build a web application
-had to own the physical hardware required to run a server.
+had to own and manage the physical hardware required to run a server
+on-premise. That included computing, networking, and storage resources, a
+lot for one organization to own and maintain.
 
-Fast forward to early 2000, a new cloud computing service model emerged,
-the infrastructure as a service (IaaS) model, which abstracted the lower
-infrastructure layers. It was much more cost-efficient than having to own
-and maintain the infrastructure yourself.
+![Content Delivery Network](/images/notes/from-serverless-to-edge/serverless)
 
-The next model was platform as a service (PaaS), which further provided the
-operating system as well as the runtime, on top of the underlying
-infrastructure. All you had to do was to maintain your application.
+In early 2000, Amazon Web Services (AWS) developed a new cloud computing
+service model, the infrastructure as a service (IaaS), which abstracted the
+lower infrastructure layers. It was much more cost-efficient than owning
+and maintaining the infrastructure and way faster to provision and get your
+servers up and running.
 
-Back in 2014, yet another level of abstraction was introduced, and that was
-functions as a service (FaaS), which reduced the application's logic into
-individual functions that can be executed in response to different events.
-In this model, you didn't even need a server. That was all managed for you
-by the service provider.
+The next model up was platform as a service (PaaS), which further provided
+the operating system and the runtime on top of the underlying
+infrastructure. PaaS takes advantage of all the virtualized resources from
+IaaS and allows developers to focus solely on the application layer.
+Platforms like Heroku gained popularity as developers wanted to spend less
+time configuring infrastructure and more time building their applications.
 
-In summary, serverless architecture abstracts away the details of
-maintaining servers and the underlying infrastructure and enables us to
-build applications without having to worry about servers. Note that despite
-the name "serverless", physical servers are still used, they are just
-managed by the service provider.
+With the advancements in virtualization technologies, AWS introduced yet
+another layer of abstraction in 2014: AWS Lambda functions or functions as
+a service (FaaS), which reduces the application's logic to individual tasks
+that can execute in response to different events. As single units of code
+deployed to the cloud provider's infrastructure, functions acted as the
+compute engine enabling the new serverless architecture.
+
+Serverless architecture abstracts away the details of maintaining servers
+and the underlying infrastructure and enables developers to focus on
+business logic and building applications without worrying about
+provisioning and configuring servers. This further expedited the decoupling
+of monolithic architecture into dedicated, specialized services running in
+separate processes, known as the microservices architecture.
 
 ## The Advent of Edge Functions
 
 One of the problems when dealing with servers, whether managed by you or
-the cloud service provider, is network latency, the effect of physical
-distance between users and the origin server, on response time.
+the cloud service provider is network latency, the effect of physical
+distance between users and the origin server on response time.
 
 ![Server Rendered Applications](/images/notes/from-serverless-to-edge/ssr)
 
-So far the solution has been to generate static pages so we can serve them
-faster from CDNs on the Edge, however, this comes at the cost of losing
-dynamic content. Speed and dynamic content are often at odds. But what if
+So far, the solution has been to generate static pages so we can serve them
+faster from CDNs on the Edge. However, this comes at the cost of losing
+dynamic content. Speed and personalization are often at odds. But what if
 we could run code at the Edge?
 
-Serverless computing continues to evolve as providers come up with
-solutions to overcome its drawbacks. Edge functions are aiming to bring
-serverless functions closer to the users by combining the serverless
-architecture with the CDN Edge network, allowing code to run at the Edge.
+Serverless computing continues to evolve as providers develop solutions to
+overcome its drawbacks. Edge functions aim to bring serverless functions
+closer to the users by combining the serverless architecture with the CDN
+Edge network, allowing code to run at the Edge.
 
-Edge Computing is a model in which storage and _computing_ move closer to
-the end-user. This way we can have the power of dynamic at the speed of
+Edge computing is a model in which storage and computing move closer to the
+end-user. This way, we can have the power of dynamic at the speed of
 static.
 
 ![Server Rendered Applications](/images/notes/from-serverless-to-edge/edge)
 
 Edge functions are essentially serverless functions hosted on edge servers
-that can be used to process HTTP requests before they travel all the way
-back to the origin server. The more geographically distributed edge
-locations are, the less latency will be experienced by the users.
+that can process HTTP requests before they travel back to the origin
+server. The more geographically distributed edge locations are, the fewer
+users will experience latency.
 
 Generally speaking, possible use cases can be anything that involves
-intercepting the client request before returning the response.
+intercepting the client's request before returning the response.
 
 ### Example Use Cases
 
@@ -101,11 +111,10 @@ intercepting the client request before returning the response.
 ### State
 
 Edge applications will generally need both compute and state. API-based
-serverless databases are filling the state side of that equation while
-we're waiting for databases at the Edge to mature.
-[FaunaDB](https://fauna.com/) and [PlanetScale](https://planetscale.com/)
-are examples of database platforms designed specifically for the serverless
-architecture.
+serverless databases fill the state side of that equation while we wait for
+databases at the Edge to mature. [FaunaDB](https://fauna.com/) and
+[PlanetScale](https://planetscale.com/) are examples of database platforms
+explicitly designed for serverless architecture.
 
 ### Example
 
@@ -137,14 +146,28 @@ This middleware function would now run before all requests to your site. It
 will look at the user's location and rewrite the request to the user's
 country: `/${country}`.
 
+### Experiment at the Edge
+
+[Sanity](https://www.sanity.io/) uses Edge Middleware to personalize
+content at the Edge. Based on the incoming request, Edge Middleware can run
+A/B tests for the current visitor and route the request to one of the
+possible variants from the edge server.
+
+Rather than needing to load heavy client-side libraries or deal with layout
+shifts from validating whether the visitor was part of the current
+experiment, personalization at the Edge helps you achieve outstanding
+performance and a great user experience.
+
+You can read more about Edge use cases
+[here](https://vercel.com/blog/vercel-edge-middleware-dynamic-at-the-speed-of-static).
+
 ## The Future
 
-For React applications, with React Server Components in development, you'll
-be able to render pages at the edge close to your users with zero
-client-side JavaScript. This improves the user experience by combining the
-best of server-side rendering and client-side interactivity.
+With React Server Components in development, you'll be able to render pages
+at the Edge close to your users with zero client-side JavaScript, which
+will improve the user experience by combining the best of server-side
+rendering and client-side interactivity.
 
 On a broader level, the reduction in latency brought by Edge computing
-coupled with the evolution of 5G networks and faster devices, can bring in
-a new generation of application use cases that were previously
-unattainable.
+coupled with the evolution of 5G networks and faster devices can bring in a
+new generation of previously unattainable application use cases.

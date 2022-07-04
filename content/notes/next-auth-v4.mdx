@@ -246,7 +246,7 @@ via an HTTP POST request as input and returns either:
    the error message as a query parameter. If you're using the
    auto-generated `error` page the error will be displayed to the user.
 
-```jsx {2,6-26} showLineNumbers
+```jsx {2,7-27} showLineNumbers
 import NextAuth from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import loginUser from '@utils/database'
@@ -399,10 +399,10 @@ callbacks: {
 ...
 ```
 
-For example if you want to pass data such as the User ID to the browser
-when using **JSON Web Tokens**, you can persist the data in the token when
-the `jwt` callback is called, then pass the data through to the browser in
-the `session` callback.
+For example if you want to pass data such as the `access_token` to the
+browser when using **JSON Web Tokens**, you can persist the data in the
+token when the `jwt` callback is called, then pass the data through to the
+browser in the `session` callback.
 
 ```jsx {4,9} showLineNumbers
 ...
@@ -607,7 +607,7 @@ component:
 - `refetchOnWindowFocus`: control whether client should update the session
   when you switch focus on tabs/windows. Defaults to `true`.
 
-```jsx {4-7} showLineNumbers title="pages/_app.js"
+```jsx {3-6} showLineNumbers title="pages/_app.js"
 ...
 <SessionProvider
   session={pageProps.session}
@@ -880,7 +880,6 @@ const SignInForm = () => {
         onChange={e => setEmail(e.target.value)}
       />
       <button
-        href={`/api/auth/signin`}
         onClick={() => signIn('email', { email, callbackUrl: '/foo' })}
       >
         Sign in with Email
