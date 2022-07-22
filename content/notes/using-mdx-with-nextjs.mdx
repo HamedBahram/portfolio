@@ -117,7 +117,7 @@ This is a list in markdown:
 - Two
 - Three
 
-<section>And here is *markdown* in **JSX**</section>
+<section>And here is _markdown_ in **JSX**</section>
 
 Checkout my React component:
 
@@ -275,12 +275,16 @@ some other content
 
 Using gray-matter you can access the frontmatter:
 
-```js {7} showLineNumbers
+```js {11} showLineNumbers
 import fs from 'fs'
+import path from 'path'
 import matter from 'gray-matter'
 
+const root = path.join(process.cwd(), 'pages', 'blog')
+
 export const getPostFrontmatter = slug => {
-  const filePath = '/some/file/path'
+  const realSlug = slug.replace(/\.mdx$/, '')
+  const filePath = path.join(root, `${realSlug}.mdx`)
   const fileContent = fs.readFileSync(filePath, 'utf8')
   const { data, content } = matter(fileContent)
   return data // this is the frontmatter
@@ -320,7 +324,7 @@ export default withMDX({
 So far we've seen how to use components in our MDX files by either
 importing them or defining them locally. We can also pass components to our
 MDX files using the `components` prop. It takes an object mapping component
-names to components.
+names to the actual components.
 
 ```mdx showLineNumbers title="example.mdx"
 # This is a markdown file
@@ -330,7 +334,9 @@ It is using a custom link component
 <CustomLink href="/">Home</CustomLink>
 ```
 
-It can be imported from JavaScript and passed components like so:
+The `CustomLink` component is not imported nor is it defined locally in
+`example.mdx`; instead, it's passed to it using the `components` prop when
+rendered in the Home page, like so:
 
 ```jsx {2,9} showLineNumbers title="home.jsx"
 import Link from 'next/link'
